@@ -14,7 +14,7 @@
         "curly": "warn",
         "eqeqeq": "warn",
         "no-throw-literal": "warn",
-        "semi": "off"
+        "semi": 2
     },
     "ignorePatterns": [
         "out",

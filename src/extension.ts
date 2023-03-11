@@ -1,26 +1,73 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+import * as cp from 'child_process';
+
+var outputChannel: vscode.OutputChannel;
+var taskList: TaskList;
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "vscode-task" is now active!');
+	// Create an output channel for the task output
+	outputChannel = vscode.window.createOutputChannel('task');
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('vscode-task.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from vscode-task!');
-	});
+	// Register commands
+	let disposable = vscode.commands.registerCommand('vscode-task.runTask', runTask);
+
+	// Initialise the task list
+	refreshTaskList();
 
 	context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
+
+function runTask() {
+	refreshTaskList();
+
+	// Show a quick pick with all the tasks
+	vscode.window.showQuickPick(taskList.tasks.map(t => t.name)).then((taskName) => {
+
+		// If the user selected a task, run it
+		if (taskName) {
+			cp.exec(`task ${taskName}`, (err: cp.ExecException | null, stdout: string, stderr: string) => {
+				if (err) {
+					console.log('error: ' + err);
+					return;
+				}
+				outputChannel.append(stderr);
+				outputChannel.append(stdout);
+				outputChannel.show();
+			});
+		}
+	});
+}
+
+async function refreshTaskList() {
+	return await new Promise((resolve, reject) => {
+		// Get a list of all tasks
+		cp.exec('task --list-all --json', (err: cp.ExecException | null, stdout: string, stderr: string) => {
+			if (err) {
+				console.log('error: ' + err);
+				return;
+			}
+			// Parse the JSON output
+			taskList = JSON.parse(stdout);
+			resolve(stdout);
+		});
+	});
+}
+
+interface Task {
+	name: string;
+	desc: string;
+	summary: string;
+	up_to_date: boolean;
+}
+
+interface TaskList {
+	tasks: Task[];
+}

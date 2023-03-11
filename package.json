@@ -14,8 +14,9 @@
   "contributes": {
     "commands": [
       {
-        "command": "vscode-task.helloWorld",
-        "title": "Hello World"
+        "command": "vscode-task.runTask",
+        "title": "Run Task",
+        "category": "Task"
       }
     ]
   },
