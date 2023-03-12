@@ -43,6 +43,16 @@
     },
     "colors": [
       {
+        "id": "vscodetask.namespace",
+        "description": "Color for up-to-date tasks in the activity bar.",
+        "defaults": {
+          "dark": "#5FBBB0",
+          "light": "#5FBBB0",
+          "highContrast": "#5FBBB0",
+          "highContrastLight": "#5FBBB0"
+        }
+      },
+      {
         "id": "vscodetask.upToDate",
         "description": "Color for up-to-date tasks in the activity bar.",
         "defaults": {
