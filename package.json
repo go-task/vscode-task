@@ -1,8 +1,31 @@
 {
   "name": "vscode-task",
-  "displayName": "vscode-task",
-  "description": "Task is a task runner / build tool that aims to be simpler and easier to use than, for example, GNU Make.",
-  "version": "0.0.1",
+  "displayName": "Task",
+  "description": "A task runner / build tool that aims to be simpler and easier to use than, for example, GNU Make.",
+  "homepage": "https://taskfile.dev",
+  "icon": "res/task.png",
+  "license": "MIT",
+  "version": "0.1.0",
+  "author": {
+    "name": "Pete Davison",
+    "email": "pd93.uk@outlook.com",
+    "url": "https://github.com/pd93"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/go-task/vscode-task"
+  },
+  "sponsor": {
+    "url": "https://taskfile.dev/donate"
+  },
+  "bugs": {
+    "url": "https://github.com/go-task/vscode-task/issues"
+  },
+  "keywords": [
+    "task",
+    "go-task",
+    "taskfile"
+  ],
   "engines": {
     "vscode": "^1.76.0"
   },
