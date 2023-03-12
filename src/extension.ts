@@ -10,7 +10,9 @@ export function activate(context: vscode.ExtensionContext) {
 	taskExtension.registerCommands(context);
 
 	// Refresh the tasks list
-	taskExtension.update().catch((err: string) => {
+	taskExtension.update().then(() => {
+		taskExtension.refresh();
+	}).catch((err: string) => {
 		console.error(err);
 	});
 }

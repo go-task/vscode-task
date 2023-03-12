@@ -17,7 +17,7 @@ class TaskfileService {
     public async read(): Promise<models.Taskfile> {
         return await new Promise((resolve, reject) => {
             let command = 'task --list-all --json';
-            cp.exec(command, (err: cp.ExecException | null, stdout: string, stderr: string) => {
+            cp.exec(command, { cwd: getWorkspaceFolder() }, (err: cp.ExecException | null, stdout: string, stderr: string) => {
                 if (err) {
                     console.log('error: ' + err);
                     reject();
@@ -32,7 +32,7 @@ class TaskfileService {
     public async runTask(taskName: string): Promise<void> {
         return await new Promise((resolve, reject) => {
             let command = `task ${taskName}`;
-            cp.exec(command, (err: cp.ExecException | null, stdout: string, stderr: string) => {
+            cp.exec(command, { cwd: getWorkspaceFolder() }, (err: cp.ExecException | null, stdout: string, stderr: string) => {
                 if (err) {
                     console.log('error: ' + err);
                     reject();
@@ -48,3 +48,10 @@ class TaskfileService {
 }
 
 export const taskfile = TaskfileService.Instance;
+
+function getWorkspaceFolder(): string | undefined {
+    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+        return undefined;
+    }
+    return vscode.workspace.workspaceFolders[0].uri.path;
+}

@@ -17,6 +17,50 @@
         "command": "vscode-task.runTask",
         "title": "Run Task",
         "category": "Task"
+      },
+      {
+        "command": "vscode-task.refreshTasks",
+        "title": "Refresh Tasks",
+        "category": "Task"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vscode-task",
+          "title": "Task",
+          "icon": "./res/task.svg"
+        }
+      ]
+    },
+    "views": {
+      "vscode-task": [
+        {
+          "id": "vscode-task.tasks",
+          "name": "Tasks"
+        }
+      ]
+    },
+    "colors": [
+      {
+        "id": "vscodetask.upToDate",
+        "description": "Color for up-to-date tasks in the activity bar.",
+        "defaults": {
+          "dark": "#00AA00",
+          "light": "#00AA00",
+          "highContrast": "#00AA00",
+          "highContrastLight": "#00AA00"
+        }
+      },
+      {
+        "id": "vscodetask.outOfDate",
+        "description": "Color for out-of-date tasks in the activity bar.",
+        "defaults": {
+          "dark": "#AAAAAA",
+          "light": "#AAAAAA",
+          "highContrast": "#AAAAAA",
+          "highContrastLight": "#AAAAAA"
+        }
       }
     ]
   },
