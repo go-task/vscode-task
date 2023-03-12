@@ -125,7 +125,27 @@
           "highContrastLight": "#AAAAAA"
         }
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Task configuration",
+      "properties": {
+        "task": {
+          "type": "object",
+          "description": "Task configuration options.",
+          "properties": {
+            "updateOn": {
+              "type": "string",
+              "enum": [
+                "save",
+                "manual"
+              ],
+              "default": "save",
+              "description": "When the list of tasks should be updated."
+            }
+          }
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "yarn run compile",

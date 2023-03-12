@@ -11,7 +11,6 @@ This extension integrates your Taskfile into Visual Studio Code.
 
 - Run last task command
 - Switch between nested/flat task view
-- Refresh tasks when Taskfile is changed
 - Refresh up-to-date status when a task's sources change
 - Support global tasks
 - Support workspaces

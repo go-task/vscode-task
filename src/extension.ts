@@ -8,13 +8,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Registration
 	taskExtension.registerCommands(context);
+	taskExtension.registerListeners(context);
 
 	// Refresh the tasks list
-	taskExtension.update().then(() => {
-		taskExtension.refresh();
-	}).catch((err: string) => {
-		console.error(err);
-	});
+	taskExtension.updateAndRefresh();
 }
 
 export function deactivate() { }
