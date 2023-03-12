@@ -14,14 +14,22 @@
   "contributes": {
     "commands": [
       {
-        "command": "vscode-task.runTask",
-        "title": "Run Task",
-        "category": "Task"
+        "command": "vscode-task.refresh",
+        "title": "Refresh Tasks",
+        "category": "Task",
+        "icon": "$(refresh)"
       },
       {
-        "command": "vscode-task.refreshTasks",
-        "title": "Refresh Tasks",
-        "category": "Task"
+        "command": "vscode-task.runTask",
+        "title": "Run Task",
+        "category": "Task",
+        "icon": "$(play)"
+      },
+      {
+        "command": "vscode-task.runTaskPicker",
+        "title": "Run Task",
+        "category": "Task",
+        "icon": "$(play)"
       }
     ],
     "viewsContainers": {
@@ -38,6 +46,28 @@
         {
           "id": "vscode-task.tasks",
           "name": "Tasks"
+        }
+      ]
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "vscode-task.runTask",
+          "when": "false"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "vscode-task.refresh",
+          "when": "view == vscode-task.tasks",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "vscode-task.runTask",
+          "when": "view == vscode-task.tasks && viewItem == taskTreeItem",
+          "group": "inline"
         }
       ]
     },

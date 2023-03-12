@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import * as commands from './commands';
 import * as elements from './elements';
 import * as services from './services';
 import * as models from './models';
+import { TaskTreeItem } from './providers/tasks';
 
 export class TaskExtension {
     private _taskfile?: models.Taskfile;
@@ -23,10 +23,29 @@ export class TaskExtension {
     }
 
     public registerCommands(context: vscode.ExtensionContext): void {
-        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTask', () => {
-            commands.runTask(this._taskfile);
+
+        // Run task
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTask', (treeItem?: TaskTreeItem) => {
+            if (treeItem?.task) {
+                services.taskfile.runTask(treeItem.task.name);
+            }
         }));
-        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.refreshTasks', () => {
+
+        // Run task picker
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTaskPicker', () => {
+            if (!this._taskfile || this._taskfile.tasks.length === 0) {
+                vscode.window.showInformationMessage('No tasks found');
+                return;
+            }
+            vscode.window.showQuickPick(this._taskfile.tasks.map(t => t.name)).then((taskName) => {
+                if (taskName) {
+                    services.taskfile.runTask(taskName);
+                }
+            });
+        }));
+
+        // Refresh tasks
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.refresh', () => {
             this.update().then(() => {
                 this.refresh();
             }).catch((err: string) => {

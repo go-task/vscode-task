@@ -66,7 +66,7 @@ function trimNamespacePrefix(str: string, prefix?: string) {
     return str;
 }
 
-class TaskTreeItem extends vscode.TreeItem {
+export class TaskTreeItem extends vscode.TreeItem {
     constructor(
         readonly label: string,
         readonly namespace: string,
@@ -82,5 +82,6 @@ class TaskTreeItem extends vscode.TreeItem {
         } else {
             this.iconPath = new vscode.ThemeIcon('debug-breakpoint-data-unverified', new vscode.ThemeColor('vscodetask.outOfDate'));
         }
+        this.contextValue = `${this.task ? 'task' : 'namespace'}TreeItem`;
     }
 }
