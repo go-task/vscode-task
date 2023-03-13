@@ -37,6 +37,11 @@ export class TaskExtension {
 
     public registerCommands(context: vscode.ExtensionContext): void {
 
+        // Refresh tasks
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.refresh', () => {
+            this.updateAndRefresh();
+        }));
+
         // Run task
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTask', (treeItem?: TaskTreeItem) => {
             if (treeItem?.task) {
@@ -46,7 +51,7 @@ export class TaskExtension {
 
         // Run task picker
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTaskPicker', () => {
-            if (!this._taskfile || this._taskfile.tasks.length === 0) {
+            if (this._taskfile === undefined || this._taskfile.tasks.length === 0) {
                 vscode.window.showInformationMessage('No tasks found');
                 return;
             }
@@ -57,9 +62,32 @@ export class TaskExtension {
             });
         }));
 
-        // Refresh tasks
-        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.refresh', () => {
-            this.updateAndRefresh();
+        // Go to definition
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinition', (task: TaskTreeItem | models.Task, preview: boolean = false) => {
+            if (task instanceof TaskTreeItem) {
+                if (task.task === undefined) {
+                    return;
+                }
+                task = task.task;
+            }
+            services.taskfile.goToDefinition(task, preview);
+        }));
+
+        // Go to definition picker
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinitionPicker', () => {
+            if (this._taskfile === undefined || this._taskfile.tasks.length === 0) {
+                vscode.window.showInformationMessage('No tasks found');
+                return;
+            }
+            vscode.window.showQuickPick(this._taskfile.tasks.map(t => t.name)).then((taskName) => {
+                if (taskName) {
+                    let task = this._taskfile?.tasks.find(t => t.name === taskName);
+                    if (task === undefined) {
+                        return;
+                    }
+                    services.taskfile.goToDefinition(task);
+                }
+            });
         }));
     }
 

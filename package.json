@@ -53,6 +53,18 @@
         "title": "Run Task",
         "category": "Task",
         "icon": "$(play)"
+      },
+      {
+        "command": "vscode-task.goToDefinition",
+        "title": "Go to Definition",
+        "category": "Task",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "vscode-task.goToDefinitionPicker",
+        "title": "Go to Definition",
+        "category": "Task",
+        "icon": "$(go-to-file)"
       }
     ],
     "viewsContainers": {
@@ -77,6 +89,10 @@
         {
           "command": "vscode-task.runTask",
           "when": "false"
+        },
+        {
+          "command": "vscode-task.goToDefinition",
+          "when": "false"
         }
       ],
       "view/title": [
@@ -89,6 +105,11 @@
       "view/item/context": [
         {
           "command": "vscode-task.runTask",
+          "when": "view == vscode-task.tasks && viewItem == taskTreeItem",
+          "group": "inline"
+        },
+        {
+          "command": "vscode-task.goToDefinition",
           "when": "view == vscode-task.tasks && viewItem == taskTreeItem",
           "group": "inline"
         }

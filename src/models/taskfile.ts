@@ -7,4 +7,11 @@ export interface Task {
     desc: string;
     summary: string;
     up_to_date: boolean;
+    location: Location;
+}
+
+export interface Location {
+    taskfile: string;
+    line: number;
+    column: number;
 }

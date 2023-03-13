@@ -15,14 +15,9 @@ class TaskfileService {
     }
 
     public async read(): Promise<models.Taskfile> {
-        return await new Promise((resolve, reject) => {
+        return await new Promise((resolve) => {
             let command = 'task --list-all --json';
-            cp.exec(command, { cwd: getWorkspaceFolder() }, (err: cp.ExecException | null, stdout: string, stderr: string) => {
-                if (err) {
-                    console.log('error: ' + err);
-                    reject();
-                    return;
-                }
+            cp.exec(command, { cwd: getWorkspaceFolder() }, (_, stdout: string) => {
                 var taskfile: models.Taskfile = JSON.parse(stdout);
                 resolve(taskfile);
             });
@@ -30,20 +25,42 @@ class TaskfileService {
     }
 
     public async runTask(taskName: string): Promise<void> {
-        return await new Promise((resolve, reject) => {
+        return await new Promise((resolve) => {
             let command = `task ${taskName}`;
-            cp.exec(command, { cwd: getWorkspaceFolder() }, (err: cp.ExecException | null, stdout: string, stderr: string) => {
-                if (err) {
-                    console.log('error: ' + err);
-                    reject();
-                    return;
-                }
+            cp.exec(command, { cwd: getWorkspaceFolder() }, (_, stdout: string, stderr: string) => {
                 TaskfileService.outputChannel.append(stderr);
                 TaskfileService.outputChannel.append(stdout);
+                TaskfileService.outputChannel.append("-----");
                 TaskfileService.outputChannel.show();
                 resolve();
             });
         });
+    }
+
+    public goToDefinition(task: models.Task, preview: boolean = false): void {
+        if (task.location === undefined) {
+            vscode.window.showErrorMessage(`Go to definition requires Task v3.23.0 or higher.`);
+            return;
+        }
+
+        let position = new vscode.Position(task.location.line - 1, task.location.column - 1);
+        let range = new vscode.Range(position, position);
+
+        // Create the vscode URI from the Taskfile path
+        let file = vscode.Uri.file(task.location.taskfile);
+
+        // Create the vscode text document show options
+        let options: vscode.TextDocumentShowOptions = {
+            selection: range,
+            preview: preview
+        };
+
+        // Run the vscode open command with the range options
+        try {
+            vscode.commands.executeCommand('vscode.open', file, options);
+        } catch (err) {
+            console.error(err);
+        }
     }
 }
 

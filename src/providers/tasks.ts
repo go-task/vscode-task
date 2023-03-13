@@ -26,7 +26,11 @@ export class Tasks implements vscode.TreeDataProvider<TaskTreeItem> {
             // If the task's namespace is the same as the parent's namespace
             // add the task to the tree
             if ((parent && parent.namespace === namespace) || (!parent && namespace === "")) {
-                taskTreeItems.push(new TaskTreeItem(taskLabel, namespace, task, vscode.TreeItemCollapsibleState.None));
+                taskTreeItems.push(new TaskTreeItem(taskLabel, namespace, task, vscode.TreeItemCollapsibleState.None, {
+                    command: 'vscode-task.goToDefinition',
+                    title: 'Go to Definition',
+                    arguments: [task, true],
+                }));
                 return;
             }
 
@@ -71,7 +75,8 @@ export class TaskTreeItem extends vscode.TreeItem {
         readonly label: string,
         readonly namespace: string,
         readonly task: models.Task | undefined,
-        public readonly collapsibleState: vscode.TreeItemCollapsibleState
+        public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+        public readonly command?: vscode.Command
     ) {
         super(label, collapsibleState);
         this.description = this.task?.desc;
