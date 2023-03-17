@@ -37,6 +37,12 @@
   "contributes": {
     "commands": [
       {
+        "command": "vscode-task.init",
+        "title": "Initialize Taskfile",
+        "category": "Task",
+        "icon": "$(plus)"
+      },
+      {
         "command": "vscode-task.refresh",
         "title": "Refresh Tasks",
         "category": "Task",
@@ -84,6 +90,12 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "vscode-task.tasks",
+        "contents": "No Taskfile found in this workspace. Click the button below to get started and initialize a new Taskfile.\n[Initialize Taskfile](command:vscode-task.init)\nTo learn more about how to use Task [read our docs](https://taskfile.dev)."
+      }
+    ],
     "menus": {
       "commandPalette": [
         {

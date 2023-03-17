@@ -40,6 +40,26 @@ export class TaskExtension {
 
     public registerCommands(context: vscode.ExtensionContext): void {
 
+        // Initialise Taskfile
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.init', () => {
+            if (vscode.workspace.workspaceFolders?.length === 1) {
+                services.taskfile.init(vscode.workspace.workspaceFolders[0].uri.fsPath);
+                return;
+            }
+            let items: vscode.QuickPickItem[] = [];
+            vscode.workspace.workspaceFolders?.forEach((folder) => {
+                items = items.concat({
+                    label: folder.name,
+                    description: folder.uri.fsPath
+                });
+            });
+            vscode.window.showQuickPick(items).then((item) => {
+                if (item) {
+                    services.taskfile.init(item.description || "");
+                }
+            });
+        }));
+
         // Refresh tasks
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.refresh', () => {
             this.updateAndRefresh();

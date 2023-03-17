@@ -8,6 +8,8 @@ This extension integrates your Taskfile into Visual Studio Code.
 - Run tasks from the activity bar and command palette
 - Go to definition
 - Multi-root workspace support
+- Ability to initialize a Taskfile in the current workspace
+  - If no Taskfile is detected a button will appear in the activity bar
 
 ## Roadmap
 
@@ -20,4 +22,3 @@ This extension integrates your Taskfile into Visual Studio Code.
 - Support global tasks
 - Install Task via command palette
   - Prompt if a Taskfile is detected and Task is not installed
-- If no Taskfile is detected, add a button to initialise one
