@@ -16,7 +16,7 @@ export class ActivityBar {
         });
     }
 
-    public refresh(taskfile?: models.Taskfile) {
-        this._provider.refresh(taskfile);
+    public refresh(taskfiles: models.Taskfile[]) {
+        this._provider.refresh(taskfiles);
     }
 }

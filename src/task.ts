@@ -2,11 +2,10 @@ import * as vscode from 'vscode';
 import * as elements from './elements';
 import * as services from './services';
 import * as models from './models';
-import { TaskTreeItem } from './providers/tasks';
 import { Settings } from './settings';
 
 export class TaskExtension {
-    private _taskfile?: models.Taskfile;
+    private _taskfiles: models.Taskfile[] = [];
     private _settings: Settings;
     private _activityBar: elements.ActivityBar;
     private _watcher: vscode.FileSystemWatcher;
@@ -18,13 +17,17 @@ export class TaskExtension {
     }
 
     public async update(): Promise<void> {
-        await services.taskfile.read().then((taskfile: models.Taskfile) => {
-            this._taskfile = taskfile;
+        let p: Promise<models.Taskfile>[] = [];
+        vscode.workspace.workspaceFolders?.forEach((folder) => {
+            p.push(services.taskfile.read(folder.uri.fsPath));
+        });
+        await Promise.all(p).then((taskfiles: models.Taskfile[]) => {
+            this._taskfiles = taskfiles;
         });
     }
 
     public refresh(): void {
-        this._activityBar.refresh(this._taskfile);
+        this._activityBar.refresh(this._taskfiles);
     }
 
     public async updateAndRefresh(): Promise<void> {
@@ -43,28 +46,37 @@ export class TaskExtension {
         }));
 
         // Run task
-        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTask', (treeItem?: TaskTreeItem) => {
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTask', (treeItem?: elements.TaskTreeItem) => {
             if (treeItem?.task) {
-                services.taskfile.runTask(treeItem.task.name);
+                services.taskfile.runTask(treeItem.task.name, treeItem.workspace);
             }
         }));
 
         // Run task picker
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTaskPicker', () => {
-            if (this._taskfile === undefined || this._taskfile.tasks.length === 0) {
+            let items: vscode.QuickPickItem[] = [];
+            this._taskfiles.forEach(taskfile => {
+                if (taskfile.tasks.length > 0) {
+                    items = items.concat(new elements.QuickPickTaskSeparator(taskfile));
+                    taskfile.tasks.forEach(task => {
+                        items = items.concat(new elements.QuickPickTaskItem(taskfile, task));
+                    });
+                }
+            });
+            if (items.length === 0) {
                 vscode.window.showInformationMessage('No tasks found');
                 return;
             }
-            vscode.window.showQuickPick(this._taskfile.tasks.map(t => t.name)).then((taskName) => {
-                if (taskName) {
-                    services.taskfile.runTask(taskName);
+            vscode.window.showQuickPick(items).then((item) => {
+                if (item && item instanceof elements.QuickPickTaskItem) {
+                    services.taskfile.runTask(item.label, item.taskfile.workspace);
                 }
             });
         }));
 
         // Go to definition
-        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinition', (task: TaskTreeItem | models.Task, preview: boolean = false) => {
-            if (task instanceof TaskTreeItem) {
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinition', (task: elements.TaskTreeItem | models.Task, preview: boolean = false) => {
+            if (task instanceof elements.TaskTreeItem) {
                 if (task.task === undefined) {
                     return;
                 }
@@ -75,17 +87,22 @@ export class TaskExtension {
 
         // Go to definition picker
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinitionPicker', () => {
-            if (this._taskfile === undefined || this._taskfile.tasks.length === 0) {
+            let items: vscode.QuickPickItem[] = [];
+            this._taskfiles.forEach(taskfile => {
+                if (taskfile.tasks.length > 0) {
+                    items = items.concat(new elements.QuickPickTaskSeparator(taskfile));
+                    taskfile.tasks.forEach(task => {
+                        items = items.concat(new elements.QuickPickTaskItem(taskfile, task));
+                    });
+                }
+            });
+            if (items.length === 0) {
                 vscode.window.showInformationMessage('No tasks found');
                 return;
             }
-            vscode.window.showQuickPick(this._taskfile.tasks.map(t => t.name)).then((taskName) => {
-                if (taskName) {
-                    let task = this._taskfile?.tasks.find(t => t.name === taskName);
-                    if (task === undefined) {
-                        return;
-                    }
-                    services.taskfile.goToDefinition(task);
+            vscode.window.showQuickPick(items).then((item) => {
+                if (item && item instanceof elements.QuickPickTaskItem) {
+                    services.taskfile.goToDefinition(item.task);
                 }
             });
         }));
