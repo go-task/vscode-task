@@ -15,7 +15,6 @@ This extension integrates your Taskfile into Visual Studio Code.
 
 - Run last task command
 - Loading icon when a task is running in tree view
-- Stream output to output channel instead of waiting for command to finish
 - Switch between nested/flat task view
 - Refresh up-to-date status when a task's sources change
 - Status polling to update up-to-date status

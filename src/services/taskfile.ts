@@ -7,12 +7,13 @@ import * as fs from 'fs';
 class TaskfileService {
     private static _instance: TaskfileService;
     private static outputChannel: vscode.OutputChannel;
+    private static readonly taskCommand = 'task';
 
     private constructor() {
         TaskfileService.outputChannel = vscode.window.createOutputChannel('Task');
     }
 
-    public static get Instance() {
+    public static get instance() {
         return this._instance ?? (this._instance = new this());
     }
 
@@ -55,12 +56,28 @@ class TaskfileService {
 
     public async runTask(taskName: string, dir?: string): Promise<void> {
         return await new Promise((resolve) => {
-            let command = `task ${taskName}`;
-            cp.exec(command, { cwd: dir }, (_, stdout: string, stderr: string) => {
-                TaskfileService.outputChannel.append(stderr);
-                TaskfileService.outputChannel.append(stdout);
-                TaskfileService.outputChannel.append("-----\n");
-                TaskfileService.outputChannel.show();
+            // Spawn a child process
+            let child = cp.spawn(TaskfileService.taskCommand, [taskName], { cwd: dir });
+
+            // Clear the output channel and show it
+            TaskfileService.outputChannel.clear();
+            TaskfileService.outputChannel.show();
+
+            // Listen for stderr
+            child.stderr.setEncoding('utf8');
+            child.stderr.on("data", data => {
+                TaskfileService.outputChannel.append(data.toString());
+            });
+
+            // Listen for stdout
+            child.stdout.setEncoding('utf8');
+            child.stdout.on("data", data => {
+                TaskfileService.outputChannel.append(data.toString());
+            });
+
+            // When the task finishes, print the exit code and resolve the promise
+            child.on('close', code => {
+                TaskfileService.outputChannel.append(`task: completed with code ${code}\n`);
                 return resolve();
             });
         });
@@ -93,4 +110,4 @@ class TaskfileService {
     }
 }
 
-export const taskfile = TaskfileService.Instance;
+export const taskfile = TaskfileService.instance;
