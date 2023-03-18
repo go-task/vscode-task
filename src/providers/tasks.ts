@@ -34,8 +34,10 @@ export class Tasks implements vscode.TreeDataProvider<elements.TreeItem> {
             return Promise.resolve([]);
         }
 
-        // If the workspace folder is not the same as the taskfile location, return an empty array
-        if (vscode.workspace.workspaceFolders[0].uri.fsPath !== path.dirname(this._taskfiles[0].location ?? "")) {
+        // Check if the workspace folder is the same as the taskfile location.
+        // If there is no location available (Task v3.22 or older), compare against the workspace instead.
+        // This has the downside the tasks from Taskfiles outside of the workspace folder might be shown.
+        if (vscode.workspace.workspaceFolders[0].uri.fsPath !== (this._taskfiles[0].location ? path.dirname(this._taskfiles[0].location) : this._taskfiles[0].workspace)) {
             return Promise.resolve([]);
         }
 
@@ -119,7 +121,10 @@ export class Tasks implements vscode.TreeDataProvider<elements.TreeItem> {
         let workspaceTreeItems: elements.WorkspaceTreeItem[] = [];
         this._taskfiles?.forEach(taskfile => {
             vscode.workspace.workspaceFolders?.forEach(workspace => {
-                if (workspace.uri.fsPath === path.dirname(taskfile.location)) {
+                // Check if the workspace folder is the same as the taskfile location.
+                // If there is no location available (Task v3.22 or older), compare against the workspace instead.
+                // This has the downside the tasks from Taskfiles outside of the workspace folder might be shown.
+                if (workspace.uri.fsPath === (taskfile.location ? path.dirname(taskfile.location) : taskfile.workspace)) {
                     let workspaceTreeItem = new elements.WorkspaceTreeItem(
                         workspace.name,
                         workspace.uri.fsPath,
