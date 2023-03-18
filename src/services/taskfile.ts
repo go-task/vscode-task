@@ -8,6 +8,8 @@ class TaskfileService {
     private static _instance: TaskfileService;
     private static outputChannel: vscode.OutputChannel;
     private static readonly taskCommand = 'task';
+    private lastTaskName: string | undefined;
+    private lastTaskDir: string | undefined;
 
     private constructor() {
         TaskfileService.outputChannel = vscode.window.createOutputChannel('Task');
@@ -54,6 +56,14 @@ class TaskfileService {
         });
     }
 
+    public async runLastTask(): Promise<void> {
+        if (this.lastTaskName === undefined) {
+            vscode.window.showErrorMessage(`No task has been run yet.`);
+            return;
+        }
+        await this.runTask(this.lastTaskName, this.lastTaskDir);
+    }
+
     public async runTask(taskName: string, dir?: string): Promise<void> {
         return await new Promise((resolve) => {
             // Spawn a child process
@@ -78,6 +88,8 @@ class TaskfileService {
             // When the task finishes, print the exit code and resolve the promise
             child.on('close', code => {
                 TaskfileService.outputChannel.append(`task: completed with code ${code}\n`);
+                this.lastTaskName = taskName;
+                this.lastTaskDir = dir;
                 return resolve();
             });
         });

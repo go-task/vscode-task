@@ -61,6 +61,12 @@
         "icon": "$(play)"
       },
       {
+        "command": "vscode-task.runLastTask",
+        "title": "Run Last Task",
+        "category": "Task",
+        "icon": "$(redo)"
+      },
+      {
         "command": "vscode-task.goToDefinition",
         "title": "Go to Definition",
         "category": "Task",

@@ -94,6 +94,11 @@ export class TaskExtension {
             });
         }));
 
+        // Run last task
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runLastTask', () => {
+            services.taskfile.runLastTask();
+        }));
+
         // Go to definition
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinition', (task: elements.TaskTreeItem | models.Task, preview: boolean = false) => {
             if (task instanceof elements.TaskTreeItem) {
