@@ -10,6 +10,7 @@ export interface Task {
     name: string;
     desc: string;
     summary: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     up_to_date: boolean;
     location: Location;
 }
