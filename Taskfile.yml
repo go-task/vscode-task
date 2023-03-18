@@ -1,0 +1,25 @@
+version: '3'
+
+tasks:
+  test:
+    desc: Run tests
+    cmds:
+      - yarn run test
+
+  lint:
+    desc: Run linter checks
+    cmds:
+      - yarn run lint
+
+  package:
+    desc: Package extension into a .vsix file
+    preconditions:
+      - sh: command -v vsce
+        msg: "vcse is required to package/publish\nhttps://code.visualstudio.com/api/working-with-extensions/publishing-extension"
+    sources:
+      - src/**/*
+      - package.json
+    generates:
+      - "*.vsix"
+    cmds:
+      - vsce package --yarn
