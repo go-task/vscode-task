@@ -3,7 +3,7 @@
   "displayName": "Task",
   "description": "A task runner / build tool that aims to be simpler and easier to use than, for example, GNU Make.",
   "homepage": "https://taskfile.dev",
-  "icon": "res/task.png",
+  "icon": "res/icon.png",
   "license": "MIT",
   "version": "0.1.0",
   "author": {
@@ -84,7 +84,7 @@
         {
           "id": "vscode-task",
           "title": "Task",
-          "icon": "./res/task.svg"
+          "icon": "./res/activityBarIcon.svg"
         }
       ]
     },
