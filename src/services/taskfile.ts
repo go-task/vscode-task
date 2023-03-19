@@ -4,6 +4,7 @@ import * as models from '../models';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as semver from 'semver';
+import { settings } from '../settings';
 import { Octokit } from 'octokit';
 import { Endpoints } from "@octokit/types";
 
@@ -11,7 +12,6 @@ const octokit = new Octokit();
 type ReleaseRequest = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["parameters"];
 type ReleaseResponse = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["response"];
 
-const taskCommand = 'task';
 const minimumRequiredVersion = '3.19.1';
 const minimumRecommendedVersion = '3.23.0';
 
@@ -29,9 +29,17 @@ class TaskfileService {
         return this._instance ?? (this._instance = new this());
     }
 
+    private command(command?: string): string {
+        if (command === undefined) {
+            return settings.path;
+        }
+        return `${settings.path} ${command}`;
+    }
+
     public async checkInstallation(): Promise<void> {
         return await new Promise((resolve) => {
-            cp.exec(`${taskCommand} --version`, (_, stdout: string, stderr: string) => {
+            let command = this.command('--version');
+            cp.exec(command, (_, stdout: string, stderr: string) => {
 
                 // If the version is a devel version, ignore all version checks
                 if (stdout.includes("devel")) {
@@ -109,7 +117,7 @@ class TaskfileService {
 
     public async init(dir: string): Promise<void> {
         return await new Promise((resolve) => {
-            let command = `${taskCommand} --init`;
+            let command = this.command('--init');
             cp.exec(command, { cwd: dir }, (_, stdout: string, stderr: string) => {
                 if (stderr) {
                     vscode.window.showErrorMessage(stderr);
@@ -134,7 +142,7 @@ class TaskfileService {
 
     public async read(dir: string): Promise<models.Taskfile> {
         return await new Promise((resolve) => {
-            let command = `${taskCommand} --list-all --json`;
+            let command = this.command('--list-all --json');
             cp.exec(command, { cwd: dir }, (_, stdout: string) => {
                 var taskfile: models.Taskfile = JSON.parse(stdout);
                 taskfile.workspace = dir;
@@ -154,7 +162,7 @@ class TaskfileService {
     public async runTask(taskName: string, dir?: string): Promise<void> {
         return await new Promise((resolve) => {
             // Spawn a child process
-            let child = cp.spawn(taskCommand, [taskName], { cwd: dir });
+            let child = cp.spawn(this.command(), [taskName], { cwd: dir });
 
             // Clear the output channel and show it
             TaskfileService.outputChannel.clear();

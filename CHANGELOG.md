@@ -10,7 +10,10 @@
 - Ability to initialize a Taskfile in the current workspace.
   - If no Taskfile is detected a button will appear in the sidebar.
 - Refresh on save.
-  - Configurable via `task.updateOn` setting (values: `save` (default) or `manual`).
+  - Configurable via `task.updateOn` setting (values: `"save"` (default) or `"manual"`).
 - Toggle tree nesting on/off
   - Configurable via `task.nesting` setting (values: `true` (default) or `false`).
+- Change the path to the Task binary.
+  - Can also be set to the name of a binary in your `$PATH`.
+  - Configurable via `task.path` setting (defaults to `"task"`).
 - Sidebar icon provided by @drite93.

@@ -2,20 +2,18 @@ import * as vscode from 'vscode';
 import * as elements from './elements';
 import * as services from './services';
 import * as models from './models';
-import { Settings } from './settings';
+import { settings } from './settings';
 
 export class TaskExtension {
     private _taskfiles: models.Taskfile[] = [];
-    private _settings: Settings;
     private _activityBar: elements.ActivityBar;
     private _watcher: vscode.FileSystemWatcher;
 
     constructor() {
-        this._settings = new Settings();
         this._activityBar = new elements.ActivityBar();
         this._watcher = vscode.workspace.createFileSystemWatcher("**/*.{yml,yaml}");
         services.taskfile.checkInstallation();
-        this.setTreeNesting(this._settings.treeNesting);
+        this.setTreeNesting(settings.treeNesting);
     }
 
     public async update(): Promise<void> {
@@ -162,14 +160,14 @@ export class TaskExtension {
 
     private async _onDidTaskfileChange() {
         // If manual updating is turned off (update on save)
-        if (this._settings.updateOn !== "manual") {
+        if (settings.updateOn !== "manual") {
             await this.updateAndRefresh();
         }
     }
 
     private _onDidChangeConfiguration(event: vscode.ConfigurationChangeEvent) {
         if (event.affectsConfiguration("task")) {
-            this._settings.update();
+            settings.update();
         }
     }
 }

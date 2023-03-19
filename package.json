@@ -213,6 +213,11 @@
               "default": "save",
               "description": "When the list of tasks should be updated."
             },
+            "path": {
+              "type": "string",
+              "default": "task",
+              "description": "Path to the Task binary. If not set, the extension will try to find the binary in the PATH environment variable."
+            },
             "tree": {
               "type": "object",
               "description": "Tree view configuration options.",
