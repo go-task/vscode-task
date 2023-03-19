@@ -14,6 +14,7 @@ export class TaskExtension {
         this._settings = new Settings();
         this._activityBar = new elements.ActivityBar();
         this._watcher = vscode.workspace.createFileSystemWatcher("**/*.{yml,yaml}");
+        this.setTreeNesting(this._settings.treeNesting);
     }
 
     public async update(): Promise<void> {
@@ -36,6 +37,11 @@ export class TaskExtension {
         }).catch((err: string) => {
             console.error(err);
         });
+    }
+
+    public setTreeNesting(enabled: boolean): void {
+        this._activityBar.setTreeNesting(enabled);
+        vscode.commands.executeCommand('setContext', 'vscode-task:treeNesting', enabled);
     }
 
     public registerCommands(context: vscode.ExtensionContext): void {
@@ -63,6 +69,16 @@ export class TaskExtension {
         // Refresh tasks
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.refresh', () => {
             this.updateAndRefresh();
+        }));
+
+        // View tasks as list
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.viewAsList', () => {
+            this.setTreeNesting(false);
+        }));
+
+        // View tasks as tree
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.viewAsTree', () => {
+            this.setTreeNesting(true);
         }));
 
         // Run task

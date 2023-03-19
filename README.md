@@ -29,3 +29,10 @@
 ---
 
 ![Task for Visual Studio Code Preview](./res/preview.png)
+
+## Configuration
+
+| Setting        | Type      | Allowed Values       | Default  | Description                                      |
+| -------------- | --------- | -------------------- | -------- | ------------------------------------------------ |
+| `updateOn`     | `string`  | `"manual"`, `"save"` | `"save"` | When should the task list be updated.            |
+| `tree.nesting` | `boolean` |                      | `true`   | Should the task list be nested or not by default |

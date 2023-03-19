@@ -49,6 +49,18 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "vscode-task.viewAsList",
+        "title": "View as List",
+        "category": "Task Tree",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "vscode-task.viewAsTree",
+        "title": "View as Tree",
+        "category": "Task Tree",
+        "icon": "$(list-flat)"
+      },
+      {
         "command": "vscode-task.runTask",
         "title": "Run Task",
         "category": "Task",
@@ -117,7 +129,17 @@
         {
           "command": "vscode-task.refresh",
           "when": "view == vscode-task.tasks",
-          "group": "navigation"
+          "group": "navigation@1"
+        },
+        {
+          "command": "vscode-task.viewAsList",
+          "when": "view == vscode-task.tasks && vscode-task:treeNesting",
+          "group": "navigation@2"
+        },
+        {
+          "command": "vscode-task.viewAsTree",
+          "when": "view == vscode-task.tasks && !vscode-task:treeNesting",
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [
@@ -190,6 +212,17 @@
               ],
               "default": "save",
               "description": "When the list of tasks should be updated."
+            },
+            "tree": {
+              "type": "object",
+              "description": "Tree view configuration options.",
+              "properties": {
+                "nesting": {
+                  "type": "boolean",
+                  "default": true,
+                  "description": "Whether to nest tasks by their namespace in the tree view."
+                }
+              }
             }
           }
         }

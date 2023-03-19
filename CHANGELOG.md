@@ -11,4 +11,6 @@
   - If no Taskfile is detected a button will appear in the sidebar.
 - Refresh on save.
   - Configurable via `task.updateOn` setting (values: `save` (default) or `manual`).
+- Toggle tree nesting on/off
+  - Configurable via `task.nesting` setting (values: `true` (default) or `false`).
 - Sidebar icon provided by @drite93.

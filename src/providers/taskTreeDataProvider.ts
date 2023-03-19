@@ -5,10 +5,18 @@ import * as path from 'path';
 
 const namespaceSeparator = ':';
 
-export class Tasks implements vscode.TreeDataProvider<elements.TreeItem> {
+export class TaskTreeDataProvider implements vscode.TreeDataProvider<elements.TreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<elements.TaskTreeItem | undefined> = new vscode.EventEmitter<elements.TaskTreeItem | undefined>();
     readonly onDidChangeTreeData: vscode.Event<elements.TaskTreeItem | undefined> = this._onDidChangeTreeData.event;
     private _taskfiles?: models.Taskfile[];
+
+    constructor(
+        private nestingEnabled: boolean = false
+    ) { }
+
+    setTreeNesting(enabled: boolean) {
+        this.nestingEnabled = enabled;
+    }
 
     getTreeItem(element: elements.TreeItem): vscode.TreeItem {
         return element;
@@ -74,7 +82,7 @@ export class Tasks implements vscode.TreeDataProvider<elements.TreeItem> {
 
                 // Check if the task has a namespace
                 // If it does, add it to the namespace/tasks map
-                if (namespacePath !== "") {
+                if (this.nestingEnabled && namespacePath !== "") {
                     let namespaceLabel = getNamespaceLabel(namespacePath);
                     let namespaceTreeItem = namespaceTreeItems.get(namespaceLabel) ?? new elements.NamespaceTreeItem(
                         namespaceLabel,
@@ -89,7 +97,7 @@ export class Tasks implements vscode.TreeDataProvider<elements.TreeItem> {
 
                 // Otherwise, create a tree item for the task
                 else {
-                    let taskLabel = getTaskLabel(task);
+                    let taskLabel = getTaskLabel(task, this.nestingEnabled);
                     let taskTreeItem = new elements.TaskTreeItem(
                         taskLabel,
                         workspace,
@@ -138,8 +146,10 @@ export class Tasks implements vscode.TreeDataProvider<elements.TreeItem> {
         return workspaceTreeItems;
     }
 
-    refresh(taskfiles: models.Taskfile[]): void {
-        this._taskfiles = taskfiles;
+    refresh(taskfiles?: models.Taskfile[]): void {
+        if (taskfiles) {
+            this._taskfiles = taskfiles;
+        }
         this._onDidChangeTreeData.fire(undefined);
     }
 }
@@ -174,9 +184,9 @@ function getNamespaceLabel(namespacePath: string): string {
     return namespacePath.substring(0, namespacePath.indexOf(namespaceSeparator));
 }
 
-function getTaskLabel(task: models.Task): string {
+function getTaskLabel(task: models.Task, nestingEnabled: boolean): string {
     // If the task has no namespace, return the task's name
-    if (!task.name.includes(namespaceSeparator)) {
+    if (!task.name.includes(namespaceSeparator) || !nestingEnabled) {
         return task.name;
     }
     // Return the task's name by removing the namespace
