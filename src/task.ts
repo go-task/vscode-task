@@ -14,6 +14,7 @@ export class TaskExtension {
         this._settings = new Settings();
         this._activityBar = new elements.ActivityBar();
         this._watcher = vscode.workspace.createFileSystemWatcher("**/*.{yml,yaml}");
+        services.taskfile.checkInstallation();
         this.setTreeNesting(this._settings.treeNesting);
     }
 
