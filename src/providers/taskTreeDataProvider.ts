@@ -38,7 +38,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<elements.Tr
         }
 
         // If there are no taskfiles, return an empty array
-        if (!this._taskfiles) {
+        if (!this._taskfiles || this._taskfiles.length === 0) {
             return Promise.resolve([]);
         }
 
