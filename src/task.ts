@@ -17,19 +17,29 @@ export class TaskExtension {
 
     public async update(): Promise<void> {
         // Do version checks
-        await services.taskfile.checkInstallation().then((status): Promise<models.Taskfile[]> => {
+        await services.taskfile.checkInstallation().then((status): Promise<PromiseSettledResult<models.Taskfile>[]> => {
+
+            // Set the status
             vscode.commands.executeCommand('setContext', 'vscode-task:status', status);
-            if (status === "ready") {
-                // Read taskfiles
-                let p: Promise<models.Taskfile>[] = [];
-                vscode.workspace.workspaceFolders?.forEach((folder) => {
-                    p.push(services.taskfile.read(folder.uri.fsPath));
-                });
-                return Promise.all(p);
+
+            // If the status is not "ready", reject the promise
+            if (status !== "ready") {
+                return Promise.reject();
             }
-            return Promise.resolve([]);
-        }).then((taskfiles: models.Taskfile[]) => {
-            this._taskfiles = taskfiles;
+
+            // Read taskfiles
+            let p: Promise<models.Taskfile>[] = [];
+            vscode.workspace.workspaceFolders?.forEach((folder) => {
+                p.push(services.taskfile.read(folder.uri.fsPath));
+            });
+            return Promise.allSettled(p);
+
+        // If there are no valid taskfiles, set the status to "noTaskfile"
+        }).then(results => {
+            this._taskfiles = results.filter(result => result.status === "fulfilled").map(result => <PromiseFulfilledResult<any>>result).map(result => result.value);
+            if (this._taskfiles.length === 0) {
+                vscode.commands.executeCommand('setContext', 'vscode-task:status', "noTaskfile");
+            }
         });
     }
 

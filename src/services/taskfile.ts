@@ -12,8 +12,7 @@ const octokit = new Octokit();
 type ReleaseRequest = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["parameters"];
 type ReleaseResponse = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["response"];
 
-const minimumRequiredVersion = '3.19.1';
-const minimumRecommendedVersion = '3.23.0';
+const minimumRequiredVersion = '3.23.0';
 
 class TaskfileService {
     private static _instance: TaskfileService;
@@ -59,12 +58,6 @@ class TaskfileService {
                 if (version && version.compare(minimumRequiredVersion) < 0) {
                     vscode.window.showErrorMessage(`Task v${minimumRequiredVersion} is required to run this extension. Your current version is v${version}.`, "Update").then(this.buttonCallback);
                     return resolve("outOfDate");
-                }
-
-                // If the current version is older than the minimum recommended version, show a warning
-                if (version && version.compare(minimumRecommendedVersion) < 0) {
-                    vscode.window.showWarningMessage(`Task v${minimumRecommendedVersion} is recommended to run this extension. Your current version is v${version} which doesn't support some features.`, "Update").then(this.buttonCallback);
-                    return resolve("ready");
                 }
 
                 // If a newer version is available, show a message
@@ -143,10 +136,13 @@ class TaskfileService {
     }
 
     public async read(dir: string): Promise<models.Taskfile> {
-        return await new Promise((resolve) => {
+        return await new Promise((resolve, reject) => {
             let command = this.command('--list-all --json');
             cp.exec(command, { cwd: dir }, (_, stdout: string) => {
                 var taskfile: models.Taskfile = JSON.parse(stdout);
+                if (path.dirname(taskfile.location) !== dir) {
+                    return reject();
+                }
                 taskfile.workspace = dir;
                 return resolve(taskfile);
             });
@@ -193,11 +189,6 @@ class TaskfileService {
     }
 
     public async goToDefinition(task: models.Task, preview: boolean = false): Promise<void> {
-        if (task.location === undefined) {
-            vscode.window.showErrorMessage(`Go to definition requires Task v3.23.0 or higher.`, "Update").then(this.buttonCallback);
-            return;
-        }
-
         let position = new vscode.Position(task.location.line - 1, task.location.column - 1);
         let range = new vscode.Range(position, position);
 

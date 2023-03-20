@@ -42,13 +42,6 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<elements.Tr
             return Promise.resolve([]);
         }
 
-        // Check if the workspace folder is the same as the taskfile location.
-        // If there is no location available (Task v3.22 or older), compare against the workspace instead.
-        // This has the downside the tasks from Taskfiles outside of the workspace folder might be shown.
-        if (vscode.workspace.workspaceFolders[0].uri.fsPath !== (this._taskfiles[0].location ? path.dirname(this._taskfiles[0].location) : this._taskfiles[0].workspace)) {
-            return Promise.resolve([]);
-        }
-
         var tasks: models.Task[] | undefined;
         var parentNamespace = "";
         var workspace = "";
@@ -128,20 +121,14 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<elements.Tr
     getWorkspaces(): elements.WorkspaceTreeItem[] {
         let workspaceTreeItems: elements.WorkspaceTreeItem[] = [];
         this._taskfiles?.forEach(taskfile => {
-            vscode.workspace.workspaceFolders?.forEach(workspace => {
-                // Check if the workspace folder is the same as the taskfile location.
-                // If there is no location available (Task v3.22 or older), compare against the workspace instead.
-                // This has the downside the tasks from Taskfiles outside of the workspace folder might be shown.
-                if (workspace.uri.fsPath === (taskfile.location ? path.dirname(taskfile.location) : taskfile.workspace)) {
-                    let workspaceTreeItem = new elements.WorkspaceTreeItem(
-                        workspace.name,
-                        workspace.uri.fsPath,
-                        taskfile.tasks,
-                        vscode.TreeItemCollapsibleState.Expanded
-                    );
-                    workspaceTreeItems = workspaceTreeItems.concat(workspaceTreeItem);
-                }
-            });
+            let dir = path.dirname(taskfile.location);
+            let workspaceTreeItem = new elements.WorkspaceTreeItem(
+                path.basename(dir),
+                dir,
+                taskfile.tasks,
+                vscode.TreeItemCollapsibleState.Expanded
+            );
+            workspaceTreeItems = workspaceTreeItems.concat(workspaceTreeItem);
         });
         return workspaceTreeItems;
     }
