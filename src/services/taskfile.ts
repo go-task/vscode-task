@@ -138,7 +138,10 @@ class TaskfileService {
     public async read(dir: string): Promise<models.Taskfile> {
         return await new Promise((resolve, reject) => {
             let command = this.command('--list-all --json');
-            cp.exec(command, { cwd: dir }, (_, stdout: string) => {
+            cp.exec(command, { cwd: dir }, (err: cp.ExecException | null, stdout: string) => {
+                if (err) {
+                    return reject();
+                }
                 var taskfile: models.Taskfile = JSON.parse(stdout);
                 if (path.dirname(taskfile.location) !== dir) {
                     return reject();
