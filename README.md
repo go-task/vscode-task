@@ -32,8 +32,9 @@
 
 ## Configuration
 
-| Setting        | Type      | Allowed Values       | Default  | Description                                                             |
-| -------------- | --------- | -------------------- | -------- | ----------------------------------------------------------------------- |
-| `updateOn`     | `string`  | `"manual"`, `"save"` | `"save"` | When should the task list be updated.                                   |
-| `path`         | `string`  |                      | `task`   | Path to the Task binary. Can also the name of a binary in your `$PATH`. |
-| `tree.nesting` | `boolean` |                      | `true`   | Should the task list be nested or not by default.                       |
+| Setting           | Type      | Allowed Values       | Default  | Description                                                             |
+| ----------------- | --------- | -------------------- | -------- | ----------------------------------------------------------------------- |
+| `updateOn`        | `string`  | `"manual"`, `"save"` | `"save"` | When the list of tasks should be updated.                               |
+| `path`            | `string`  |                      | `"task"` | Path to the Task binary. Can also the name of a binary in your `$PATH`. |
+| `checkForUpdates` | `boolean` |                      | `true`   | Check if there is a newer version of Task on startup.                   |
+| `tree.nesting`    | `boolean` |                      | `true`   | Whether to nest tasks by their namespace in the tree view.              |

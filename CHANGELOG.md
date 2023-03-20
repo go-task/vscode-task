@@ -16,4 +16,6 @@
 - Change the path to the Task binary.
   - Can also be set to the name of a binary in your `$PATH`.
   - Configurable via `task.path` setting (defaults to `"task"`).
+- Version checks on startup.
+  - Configurable via `task.checkForUpdates` setting (values: `true` (default) or `false`).
 - Sidebar icon provided by @drite93.

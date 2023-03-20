@@ -69,15 +69,17 @@ class TaskfileService {
 
                 // If a newer version is available, show a message
                 // TODO: what happens if the user is offline?
-                this.getLatestVersion().then((latestVersion) => {
-                    if (version && latestVersion && version.compare(latestVersion) < 0) {
-                        vscode.window.showInformationMessage(`A new version of Task is available. Current version: v${version}, Latest version: v${latestVersion}`, "Update").then(this.buttonCallback);
-                    }
-                    return resolve();
-                }).catch((err) => {
-                    console.error(err);
-                    return resolve();
-                });
+                if (settings.checkForUpdates) {
+                    this.getLatestVersion().then((latestVersion) => {
+                        if (version && latestVersion && version.compare(latestVersion) < 0) {
+                            vscode.window.showInformationMessage(`A new version of Task is available. Current version: v${version}, Latest version: v${latestVersion}`, "Update").then(this.buttonCallback);
+                        }
+                        return resolve("ready");
+                    }).catch((err) => {
+                        console.error(err);
+                        return resolve("notInstalled");
+                    });
+                }
             });
         });
     }

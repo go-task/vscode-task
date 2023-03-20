@@ -216,7 +216,12 @@
             "path": {
               "type": "string",
               "default": "task",
-              "description": "Path to the Task binary. If not set, the extension will try to find the binary in the PATH environment variable."
+              "description": "Path to the Task binary. Can also the name of a binary in your `$PATH`."
+            },
+            "checkForUpdates": {
+              "type": "boolean",
+              "default": true,
+              "description": "Check if there is a newer version of Task on startup."
             },
             "tree": {
               "type": "object",

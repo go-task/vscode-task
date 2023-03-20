@@ -4,6 +4,7 @@ class Settings {
     private static _instance: Settings;
     public updateOn!: string;
     public path!: string;
+    public checkForUpdates!: boolean;
     public treeNesting!: boolean;
 
     constructor() {
@@ -22,6 +23,7 @@ class Settings {
         // Set the properties
         this.updateOn = config.get("updateOn") ?? "change";
         this.path = config.get("path") ?? "task";
+        this.checkForUpdates = config.get("checkForUpdates") ?? true;
         this.treeNesting = config.get("tree.nesting") ?? true;
     }
 }
