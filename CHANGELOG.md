@@ -7,6 +7,7 @@
 - Go to definition from the sidebar and command palette.
 - Run last task command.
 - Multi-root workspace support.
+- Open docs from the sidebar and command palette.
 - Ability to initialize a Taskfile in the current workspace.
   - If no Taskfile is detected a button will appear in the sidebar.
 - Refresh on save.

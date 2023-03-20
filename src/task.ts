@@ -146,6 +146,16 @@ export class TaskExtension {
                 }
             });
         }));
+
+        // Open installation
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.openInstallation', () => {
+            vscode.env.openExternal(vscode.Uri.parse('https://taskfile.dev/installation'));
+        }));
+
+        // Open usage
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.openUsage', () => {
+            vscode.env.openExternal(vscode.Uri.parse('https://taskfile.dev/usage'));
+        }));
     }
 
     public registerListeners(context: vscode.ExtensionContext): void {

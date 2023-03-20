@@ -89,6 +89,18 @@
         "title": "Go to Definition",
         "category": "Task",
         "icon": "$(go-to-file)"
+      },
+      {
+        "command": "vscode-task.openInstallation",
+        "title": "Open Installation",
+        "category": "Task",
+        "icon": "$(globe)"
+      },
+      {
+        "command": "vscode-task.openUsage",
+        "title": "Open Usage",
+        "category": "Task",
+        "icon": "$(globe)"
       }
     ],
     "viewsContainers": {
@@ -127,19 +139,24 @@
       ],
       "view/title": [
         {
-          "command": "vscode-task.refresh",
+          "command": "vscode-task.openUsage",
           "when": "view == vscode-task.tasks",
           "group": "navigation@1"
         },
         {
+          "command": "vscode-task.refresh",
+          "when": "view == vscode-task.tasks",
+          "group": "navigation@2"
+        },
+        {
           "command": "vscode-task.viewAsList",
           "when": "view == vscode-task.tasks && vscode-task:treeNesting",
-          "group": "navigation@2"
+          "group": "navigation@3"
         },
         {
           "command": "vscode-task.viewAsTree",
           "when": "view == vscode-task.tasks && !vscode-task:treeNesting",
-          "group": "navigation@3"
+          "group": "navigation@4"
         }
       ],
       "view/item/context": [
