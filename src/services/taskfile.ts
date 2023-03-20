@@ -36,14 +36,14 @@ class TaskfileService {
         return `${settings.path} ${command}`;
     }
 
-    public async checkInstallation(): Promise<void> {
+    public async checkInstallation(): Promise<string> {
         return await new Promise((resolve) => {
             let command = this.command('--version');
             cp.exec(command, (_, stdout: string, stderr: string) => {
 
                 // If the version is a devel version, ignore all version checks
                 if (stdout.includes("devel")) {
-                    return resolve();
+                    return resolve("ready");
                 }
 
                 // Get the installed version of task (if any)
@@ -52,19 +52,19 @@ class TaskfileService {
                 // If there is an error fetching the version, assume task is not installed
                 if (stderr !== "" || version === undefined) {
                     vscode.window.showErrorMessage("Task command not found.", "Install").then(this.buttonCallback);
-                    return resolve();
+                    return resolve("notInstalled");
                 }
 
                 // If the current version is older than the minimum required version, show an error
                 if (version && version.compare(minimumRequiredVersion) < 0) {
                     vscode.window.showErrorMessage(`Task v${minimumRequiredVersion} is required to run this extension. Your current version is v${version}.`, "Update").then(this.buttonCallback);
-                    return resolve();
+                    return resolve("outOfDate");
                 }
 
                 // If the current version is older than the minimum recommended version, show a warning
                 if (version && version.compare(minimumRecommendedVersion) < 0) {
                     vscode.window.showWarningMessage(`Task v${minimumRecommendedVersion} is recommended to run this extension. Your current version is v${version} which doesn't support some features.`, "Update").then(this.buttonCallback);
-                    return resolve();
+                    return resolve("ready");
                 }
 
                 // If a newer version is available, show a message
