@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { log } from './';
 
 class Settings {
     private static _instance: Settings;
@@ -17,6 +18,8 @@ class Settings {
 
     // Fetches all the settings from the workspace configuration file
     public update() {
+        log.info("Updating settings");
+
         // Get the workspace config
         let config = vscode.workspace.getConfiguration("task");
 

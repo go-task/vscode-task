@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as elements from './elements';
 import * as services from './services';
 import * as models from './models';
-import { settings } from './settings';
+import { log, settings } from './utils';
 
 export class TaskExtension {
     private _taskfiles: models.Taskfile[] = [];
@@ -51,7 +51,7 @@ export class TaskExtension {
         await this.update().then(() => {
             this.refresh();
         }).catch((err: string) => {
-            console.error(err);
+            log.error(err);
         });
     }
 
@@ -64,6 +64,7 @@ export class TaskExtension {
 
         // Initialise Taskfile
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.init', () => {
+            log.info("Command: vscode-task.init");
             if (vscode.workspace.workspaceFolders?.length === 1) {
                 services.taskfile.init(vscode.workspace.workspaceFolders[0].uri.fsPath);
                 return;
@@ -84,21 +85,25 @@ export class TaskExtension {
 
         // Refresh tasks
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.refresh', () => {
+            log.info("Command: vscode-task.refresh");
             this.updateAndRefresh();
         }));
 
         // View tasks as list
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.viewAsList', () => {
+            log.info("Command: vscode-task.viewAsList");
             this.setTreeNesting(false);
         }));
 
         // View tasks as tree
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.viewAsTree', () => {
+            log.info("Command: vscode-task.viewAsTree");
             this.setTreeNesting(true);
         }));
 
         // Run task
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTask', (treeItem?: elements.TaskTreeItem) => {
+            log.info("Command: vscode-task.runTask");
             if (treeItem?.task) {
                 services.taskfile.runTask(treeItem.task.name, treeItem.workspace);
             }
@@ -106,6 +111,7 @@ export class TaskExtension {
 
         // Run task picker
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTaskPicker', () => {
+            log.info("Command: vscode-task.runTaskPicker");
             let items: vscode.QuickPickItem[] = [];
             this._taskfiles.forEach(taskfile => {
                 if (taskfile.tasks.length > 0) {
@@ -128,11 +134,13 @@ export class TaskExtension {
 
         // Run last task
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runLastTask', () => {
+            log.info("Command: vscode-task.runLastTask");
             services.taskfile.runLastTask();
         }));
 
         // Go to definition
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinition', (task: elements.TaskTreeItem | models.Task, preview: boolean = false) => {
+            log.info("Command: vscode-task.goToDefinition");
             if (task instanceof elements.TaskTreeItem) {
                 if (task.task === undefined) {
                     return;
@@ -144,6 +152,7 @@ export class TaskExtension {
 
         // Go to definition picker
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinitionPicker', () => {
+            log.info("Command: vscode-task.goToDefinitionPicker");
             let items: vscode.QuickPickItem[] = [];
             this._taskfiles.forEach(taskfile => {
                 if (taskfile.tasks.length > 0) {
@@ -166,11 +175,13 @@ export class TaskExtension {
 
         // Open installation
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.openInstallation', () => {
+            log.info("Command: vscode-task.openInstallation");
             vscode.env.openExternal(vscode.Uri.parse('https://taskfile.dev/installation'));
         }));
 
         // Open usage
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.openUsage', () => {
+            log.info("Command: vscode-task.openUsage");
             vscode.env.openExternal(vscode.Uri.parse('https://taskfile.dev/usage'));
         }));
     }
@@ -186,6 +197,7 @@ export class TaskExtension {
     }
 
     private async _onDidTaskfileChange() {
+        log.info("Detected changes to taskfile");
         // If manual updating is turned off (update on save)
         if (settings.updateOn !== "manual") {
             await this.updateAndRefresh();
@@ -193,6 +205,7 @@ export class TaskExtension {
     }
 
     private _onDidChangeConfiguration(event: vscode.ConfigurationChangeEvent) {
+        log.info("Detected changes to configuration");
         if (event.affectsConfiguration("task")) {
             settings.update();
         }
