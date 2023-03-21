@@ -1,25 +1,61 @@
 version: '3'
 
 tasks:
+  node_modules:
+    run: once
+    desc: Install node modules
+    sources:
+      - package.json
+      - yarn.lock
+    generates:
+      - node_modules/**/*
+    cmds:
+      - yarn install
+
   test:
     desc: Run tests
+    deps: [node_modules]
     cmds:
       - yarn run test
 
   lint:
     desc: Run linter checks
+    deps: [node_modules]
     cmds:
       - yarn run lint
 
-  package:
-    desc: Package extension into a .vsix file
-    preconditions:
-      - sh: command -v vsce
-        msg: "vcse is required to package/publish\nhttps://code.visualstudio.com/api/working-with-extensions/publishing-extension"
+  bundle:
+    desc: Bundle the extension into a single JS file
+    deps: [node_modules, clean-build]
     sources:
       - src/**/*
       - package.json
     generates:
+      - out/extension.js
+    cmds:
+      - yarn run bundle
+
+  package:
+    desc: Package extension into a .vsix file
+    deps: [node_modules, bundle]
+    sources:
+      - README.md
+      - CHANGELOG.md
+      - LICENSE
+      - res/**/*
+      - out/extension.js
+    generates:
       - "*.vsix"
     cmds:
-      - vsce package --yarn
+      - yarn run package
+
+  clean-build:
+    cmds:
+      - rm -rf out
+      - rm -rf *.vsix
+
+  clean:
+    cmds:
+      - task: clean-build
+      - rm -rf .task
+      - rm -rf node_modules

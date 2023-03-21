@@ -1,9 +1,12 @@
+.github/**
+.task/**
 .vscode/**
 .vscode-test/**
 src/**
+node_modules/**
+Taskfile.yml
 .gitignore
 .yarnrc
-vsc-extension-quickstart.md
 **/tsconfig.json
 **/.eslintrc.json
 **/*.map
