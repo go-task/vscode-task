@@ -136,7 +136,7 @@ class TaskfileService {
             let filename = path.join(dir, filenames[i]);
             if (fs.existsSync(filename)) {
                 log.info(`Opening taskfile: "${filename}"`);
-                await vscode.commands.executeCommand('vscode.open', vscode.Uri.parse(filename), { preview: false });
+                await vscode.commands.executeCommand('vscode.open', vscode.Uri.file(filename), { preview: false });
                 return;
             }
         }
