@@ -6,6 +6,7 @@
   "icon": "res/icon.png",
   "license": "MIT",
   "version": "0.1.0",
+  "publisher": "task",
   "author": {
     "name": "Pete Davison",
     "email": "pd93.uk@outlook.com",
