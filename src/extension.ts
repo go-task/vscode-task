@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
 	taskExtension.registerListeners(context);
 
 	// Refresh the tasks list
-	taskExtension.updateAndRefresh();
+	taskExtension.refresh();
 }
 
 export function deactivate() { }

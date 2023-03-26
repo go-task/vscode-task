@@ -35,7 +35,10 @@ class TaskfileService {
         return `${settings.path} ${command}`;
     }
 
-    public async checkInstallation(): Promise<string> {
+    public async checkInstallation(checkForUpdates?: boolean): Promise<string> {
+        if (checkForUpdates === undefined) {
+            checkForUpdates = settings.checkForUpdates;
+        }
         return await new Promise((resolve) => {
             let command = this.command('--version');
             cp.exec(command, (_, stdout: string, stderr: string) => {
@@ -65,7 +68,7 @@ class TaskfileService {
 
                 // If a newer version is available, show a message
                 // TODO: what happens if the user is offline?
-                if (settings.checkForUpdates) {
+                if (checkForUpdates) {
                     this.getLatestVersion().then((latestVersion) => {
                         if (version && latestVersion && version.compare(latestVersion) < 0) {
                             log.info(`A new version of Task is available. Current version: v${version}, Latest version: v${latestVersion}`);
@@ -77,6 +80,8 @@ class TaskfileService {
                         return resolve("notInstalled");
                     });
                 }
+
+                return resolve("ready");
             });
         });
     }

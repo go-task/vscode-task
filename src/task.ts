@@ -15,9 +15,9 @@ export class TaskExtension {
         this.setTreeNesting(settings.treeNesting);
     }
 
-    public async update(): Promise<void> {
+    public async update(checkForUpdates?: boolean): Promise<void> {
         // Do version checks
-        await services.taskfile.checkInstallation().then((status): Promise<PromiseSettledResult<models.Taskfile>[]> => {
+        await services.taskfile.checkInstallation(checkForUpdates).then((status): Promise<PromiseSettledResult<models.Taskfile>[]> => {
 
             // Set the status
             vscode.commands.executeCommand('setContext', 'vscode-task:status', status);
@@ -43,13 +43,9 @@ export class TaskExtension {
         });
     }
 
-    public refresh(): void {
-        this._activityBar.refresh(this._taskfiles);
-    }
-
-    public async updateAndRefresh(): Promise<void> {
-        await this.update().then(() => {
-            this.refresh();
+    public async refresh(checkForUpdates?: boolean): Promise<void> {
+        await this.update(checkForUpdates).then(() => {
+            this._activityBar.refresh(this._taskfiles);
         }).catch((err: string) => {
             log.error(err);
         });
@@ -86,7 +82,7 @@ export class TaskExtension {
         // Refresh tasks
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.refresh', () => {
             log.info("Command: vscode-task.refresh");
-            this.updateAndRefresh();
+            this.refresh(false);
         }));
 
         // View tasks as list
@@ -200,7 +196,7 @@ export class TaskExtension {
         log.info("Detected changes to taskfile");
         // If manual updating is turned off (update on save)
         if (settings.updateOn !== "manual") {
-            await this.updateAndRefresh();
+            await this.refresh(false);
         }
     }
 
