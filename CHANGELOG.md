@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.1.0 [Unreleased]
+## v0.1.0 - 2023-03-26
 
 - View tasks in the sidebar.
 - Run tasks from the sidebar and command palette.
