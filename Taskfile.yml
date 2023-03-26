@@ -1,7 +1,7 @@
 version: '3'
 
 tasks:
-  node_modules:
+  yarn:install:
     run: once
     desc: Install node modules
     sources:
@@ -12,21 +12,26 @@ tasks:
     cmds:
       - yarn install
 
+  yarn:clean:
+    desc: Remove node modules
+    cmds:
+      - rm -rf node_modules
+
   test:
     desc: Run tests
-    deps: [node_modules]
+    deps: [yarn:install]
     cmds:
       - yarn run test
 
   lint:
     desc: Run linter checks
-    deps: [node_modules]
+    deps: [yarn:install]
     cmds:
       - yarn run lint
 
   bundle:
     desc: Bundle the extension into a single JS file
-    deps: [node_modules, clean-build]
+    deps: [yarn:install, clean-build]
     sources:
       - src/**/*
       - package.json
@@ -37,7 +42,7 @@ tasks:
 
   package:
     desc: Package extension into a .vsix file
-    deps: [node_modules, bundle]
+    deps: [yarn:install, bundle]
     sources:
       - README.md
       - CHANGELOG.md
@@ -58,4 +63,3 @@ tasks:
     cmds:
       - task: clean-build
       - rm -rf .task
-      - rm -rf node_modules
