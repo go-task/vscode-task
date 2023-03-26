@@ -15,7 +15,7 @@ jobs:
         run: |
           echo "package.json version: v$(jq -r .version package.json)"
           echo "git tag: ${{ github.ref }}"
-          if [ "v$(jq -r .version package.json)" != "${{ github.ref }}" ]; then
+          if [ "v$(jq -r .version package.json)" != "${{ github.ref_name }}" ]; then
             echo "package.json version does not match git tag"
             exit 1
           fi
