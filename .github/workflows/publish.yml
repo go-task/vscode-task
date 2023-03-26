@@ -1,0 +1,25 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Check versions match
+        run: |
+          echo "package.json version: v$(jq -r .version package.json)"
+          echo "git tag: ${{ github.ref }}"
+          if [ "v$(jq -r .version package.json)" != "${{ github.ref }}" ]; then
+            echo "package.json version does not match git tag"
+            exit 1
+          fi
+      - name: Publish
+        run: npm run publish
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}

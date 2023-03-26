@@ -1,0 +1,65 @@
+version: '3'
+
+tasks:
+  yarn:install:
+    run: once
+    desc: Install node modules
+    sources:
+      - package.json
+      - yarn.lock
+    generates:
+      - node_modules/**/*
+    cmds:
+      - yarn install
+
+  yarn:clean:
+    desc: Remove node modules
+    cmds:
+      - rm -rf node_modules
+
+  test:
+    desc: Run tests
+    deps: [yarn:install]
+    cmds:
+      - yarn run test
+
+  lint:
+    desc: Run linter checks
+    deps: [yarn:install]
+    cmds:
+      - yarn run lint
+
+  bundle:
+    desc: Bundle the extension into a single JS file
+    deps: [yarn:install, clean-build]
+    sources:
+      - src/**/*
+      - package.json
+    generates:
+      - out/extension.js
+    cmds:
+      - yarn run bundle
+
+  package:
+    desc: Package extension into a .vsix file
+    deps: [yarn:install, bundle]
+    sources:
+      - README.md
+      - CHANGELOG.md
+      - LICENSE
+      - res/**/*
+      - out/extension.js
+    generates:
+      - "*.vsix"
+    cmds:
+      - yarn run package
+
+  clean-build:
+    cmds:
+      - rm -rf out
+      - rm -rf *.vsix
+
+  clean:
+    cmds:
+      - task: clean-build
+      - rm -rf .task
