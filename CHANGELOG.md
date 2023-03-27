@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Fixed some installations (e.g. Brew) not detecting the Task version correctly (#13, #14 by @pd93).
+
 ## v0.1.0 - 2023-03-26
 
 - View tasks in the sidebar.
