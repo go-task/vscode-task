@@ -1,0 +1,147 @@
+{
+    "bash if": {
+        "description": "if operator",
+        "prefix": "bash:if",
+        "body": [
+            "if ${1:command}; then",
+            "\t$0",
+            "fi"
+        ]
+    },
+    "bash if else": {
+        "description": "if else operator",
+        "prefix": "bash:if-else",
+        "body": [
+            "if ${1:command}; then",
+            "\t${2:echo}",
+            "else",
+            "\t$0",
+            "fi"
+        ]
+    },
+    "bash while": {
+        "description": "while operator",
+        "prefix": "bash:while",
+        "body": [
+            "while ${1:command}; do",
+            "\t$0",
+            "done"
+        ]
+    },
+    "bash until": {
+        "description": "until operator",
+        "prefix": "bash:until",
+        "body": [
+            "until ${1:command}; do",
+            "\t$0",
+            "done"
+        ]
+    },
+    "bash for": {
+        "description": "for operator",
+        "prefix": "bash:for",
+        "body": [
+            "for ${1:variable} in ${2:list}; do",
+            "\t$0",
+            "done"
+        ]
+    },
+    "env change directory": {
+        "description": "directory change",
+        "prefix": "env:directory-change",
+        "body": [
+            "sed ${1|--chdir,-C|} ${2:command}"
+        ]
+    },
+    "env ignore environment": {
+        "description": "environment ignore",
+        "prefix": "env:environment-ignore",
+        "body": [
+            "sed ${1|--ignore-environment,-i|} ${2:command}"
+        ]
+    },
+    "sed filter by pattern": {
+        "description": "pattern filter",
+        "prefix": "sed:filter-by-pattern",
+        "body": [
+            "sed ${1|--regexp-extended,-E|} ${2|--quiet,-n|} '/${3:pattern}/p' ${4:path/to/file}"
+        ]
+    },
+    "sed filter by line number": {
+        "description": "line number filter",
+        "prefix": "sed:filter-by-line-number",
+        "body": [
+            "sed ${1|--regexp-extended,-E|} ${2|--quiet,-n|} '${3:number}p' ${4:path/to/file}"
+        ]
+    },
+    "sed filter by line numbers": {
+        "description": "line number filter",
+        "prefix": "sed:filter-by-line-numbers",
+        "body": [
+            "sed ${1|--regexp-extended,-E|} ${2|--quiet,-n|} '${3:from},${4:to}p' ${5:path/to/file}"
+        ]
+    },
+    "sed replace single": {
+        "description": "singule replacement",
+        "prefix": "sed:single-replacement",
+        "body": [
+            "sed ${1|--regexp-extended,-E|} 's/${2:pattern}/${3:replacement}/' ${4:path/to/file}"
+        ]
+    },
+    "sed replace globally": {
+        "description": "global replacement",
+        "prefix": "sed:global-replacement",
+        "body": [
+            "sed ${1|--regexp-extended,-E|} 's/${2:pattern}/${3:replacement}/g' ${4:path/to/file}"
+        ]
+    },
+    "sed transliterate": {
+        "description": "transliteration",
+        "prefix": "sed:transliteration",
+        "body": [
+            "sed ${1|--regexp-extended,-E|} 'y/${2:source-characters}/${3:replacement-characters}/g' ${4:path/to/file}"
+        ]
+    },
+    "awk filter by pattern": {
+        "description": "pattern filter",
+        "prefix": "awk:filter-by-pattern",
+        "body": [
+            "awk '/${1:pattern}/' ${2:path/to/file}"
+        ]
+    },
+    "awk filter by line number": {
+        "description": "line number filter",
+        "prefix": "awk:filter-by-line-number",
+        "body": [
+            "awk 'NR == ${1:number}' ${2:path/to/file}"
+        ]
+    },
+    "awk filter by line numbers": {
+        "description": "line number filter",
+        "prefix": "awk:filter-by-line-numbers",
+        "body": [
+            "awk 'NR >= ${1:from} && NR <= ${2:to}' ${3:path/to/file}"
+        ]
+    },
+    "awk replace single": {
+        "description": "singule replacement",
+        "prefix": "awk:single-replacement",
+        "body": [
+            "awk '{ sub(\"${1:pattern}\", \"${2:replacement}\") }' ${3:path/to/file}"
+        ]
+    },
+    "awk replace globally": {
+        "description": "global replacement",
+        "prefix": "awk:global-replacement",
+        "body": [
+            "awk '{ gsub(\"${1:pattern}\", \"${2:replacement}\") }' ${3:path/to/file}"
+        ]
+    },
+    "description": {
+        "description": "task description",
+        "prefix": "description",
+        "body": [
+            "${1|Build,Lint,Test|} with ${2|`,',\"|}${3:tool}$2"
+        ]
+    }
+}
