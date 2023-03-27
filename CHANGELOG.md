@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.1.1 - 2021-03-27
 
 - Fixed some installations (e.g. Brew) not detecting the Task version correctly (#13, #14 by @pd93).
 
