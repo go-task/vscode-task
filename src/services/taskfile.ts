@@ -108,7 +108,7 @@ class TaskfileService {
 
     parseVersion(stdout: string): semver.SemVer | undefined {
         // Extract the version string from the output
-        let matches = stdout.match(/v(\d+\.\d+\.\d+)/);
+        let matches = stdout.match(/(\d+\.\d+\.\d+)/);
         if (!matches || matches.length !== 2) {
             return undefined;
         }
