@@ -60,6 +60,13 @@
             "sed ${1|--ignore-environment,-i|} ${2:command}"
         ]
     },
+    "sed print": {
+        "description": "line print",
+        "prefix": "sed:print",
+        "body": [
+            "sed '' ${1:path/to/file}"
+        ]
+    },
     "sed filter by line pattern": {
         "description": "line pattern filter",
         "prefix": "sed:filter-by-pattern",
@@ -100,6 +107,13 @@
         "prefix": "sed:transliteration",
         "body": [
             "sed ${1|--regexp-extended,-E|} 'y/${2:source-characters}/${3:replacement-characters}/g' ${4:path/to/file}"
+        ]
+    },
+    "awk print": {
+        "description": "line print",
+        "prefix": "awk:print",
+        "body": [
+            "awk '{ print $0 }' ${1:path/to/file}"
         ]
     },
     "awk filter by line pattern": {
