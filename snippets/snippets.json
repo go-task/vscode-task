@@ -134,7 +134,7 @@
     },
     "sed filter by line pattern": {
         "description": "line pattern filter",
-        "prefix": "sed:filter-by-pattern",
+        "prefix": "sed:filter-by-line-pattern",
         "body": [
             "sed ${1|--regexp-extended,-E|} ${2|--quiet,-n|} '/${3:pattern}/p' ${4:path/to/file}"
         ]
@@ -183,7 +183,7 @@
     },
     "awk filter by line pattern": {
         "description": "line pattern filter",
-        "prefix": "awk:filter-by-pattern",
+        "prefix": "awk:filter-by-line-pattern",
         "body": [
             "awk '/${1:pattern}/' ${2:path/to/file}"
         ]
