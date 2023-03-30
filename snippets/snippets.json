@@ -169,7 +169,7 @@
     },
     "sed transliterate": {
         "description": "transliteration",
-        "prefix": "sed:transliteration",
+        "prefix": "sed:transliterate",
         "body": [
             "sed ${1|--regexp-extended,-E|} 'y/${2:source-characters}/${3:replacement-characters}/g' ${4:path/to/file}"
         ]
