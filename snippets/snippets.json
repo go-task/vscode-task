@@ -19,11 +19,40 @@
             "fi"
         ]
     },
+    "bash if test": {
+        "description": "if operator",
+        "prefix": "bash:if.test",
+        "body": [
+            "if [[ $${1:variable} ${2|==,=~,!=,<,>,-lt,-le,-gt,-ge|} $${3:variable} ]]; then",
+            "\t$0",
+            "fi"
+        ]
+    },
+    "bash if test else": {
+        "description": "if else operator",
+        "prefix": "bash:if-else.test",
+        "body": [
+            "if [[ $${1:variable} ${2|==,=~,!=,<,>,-lt,-le,-gt,-ge|} $${3:variable} ]]; then",
+            "\t${4:echo}",
+            "else",
+            "\t$0",
+            "fi"
+        ]
+    },
     "bash while": {
         "description": "while operator",
         "prefix": "bash:while",
         "body": [
             "while ${1:command}; do",
+            "\t$0",
+            "done"
+        ]
+    },
+    "bash while test": {
+        "description": "while operator",
+        "prefix": "bash:while.test",
+        "body": [
+            "while [[ $${1:variable} ${2|==,=~,!=,<,>,-lt,-le,-gt,-ge|} $${3:variable} ]]; do",
             "\t$0",
             "done"
         ]
@@ -37,11 +66,47 @@
             "done"
         ]
     },
+    "bash until test": {
+        "description": "until operator",
+        "prefix": "bash:until.test",
+        "body": [
+            "until [[ $${1:variable} ${2|==,=~,!=,<,>,-lt,-le,-gt,-ge|} $${3:variable} ]]; do",
+            "\t$0",
+            "done"
+        ]
+    },
     "bash for": {
         "description": "for operator",
         "prefix": "bash:for",
         "body": [
             "for ${1:variable} in ${2:list}; do",
+            "\t$0",
+            "done"
+        ]
+    },
+    "bash for range": {
+        "description": "for operator",
+        "prefix": "bash:for.range",
+        "body": [
+            "for ${1:variable} in $(seq ${2:to}); do",
+            "\t$0",
+            "done"
+        ]
+    },
+    "bash for file": {
+        "description": "for operator",
+        "prefix": "bash:for.file",
+        "body": [
+            "for ${1:variable} in *; do",
+            "\t$0",
+            "done"
+        ]
+    },
+    "bash for directory": {
+        "description": "for operator",
+        "prefix": "bash:for.directory",
+        "body": [
+            "for ${1:variable} in */; do",
             "\t$0",
             "done"
         ]
