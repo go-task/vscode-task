@@ -260,6 +260,16 @@
                   "type": "boolean",
                   "default": true,
                   "description": "Whether to nest tasks by their namespace in the tree view."
+                },
+                "sort": {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "alphanumeric",
+                    "none"
+                  ],
+                  "default": "default",
+                  "description": "The order in which to display tasks in the tree view."
                 }
               }
             }

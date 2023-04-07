@@ -150,7 +150,7 @@ class TaskfileService {
     public async read(dir: string): Promise<models.Taskfile> {
         log.info(`Searching for taskfile in: "${dir}"`);
         return await new Promise((resolve, reject) => {
-            let command = this.command('--list-all --json');
+            let command = this.command(`--list-all --json --sort ${settings.treeSort}`);
             cp.exec(command, { cwd: dir }, (err: cp.ExecException | null, stdout: string) => {
                 if (err) {
                     log.error(err);

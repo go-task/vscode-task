@@ -7,6 +7,7 @@ class Settings {
     public path!: string;
     public checkForUpdates!: boolean;
     public treeNesting!: boolean;
+    public treeSort!: string;
 
     constructor() {
         this.update();
@@ -28,6 +29,7 @@ class Settings {
         this.path = config.get("path") ?? "task";
         this.checkForUpdates = config.get("checkForUpdates") ?? true;
         this.treeNesting = config.get("tree.nesting") ?? true;
+        this.treeSort = config.get("tree.sort") ?? "default";
     }
 }
 
