@@ -1,0 +1,38 @@
+version: '3'
+
+includes:
+  namespace: ./included.yml
+
+tasks:
+  default:
+    cmds:
+      - task: hello
+
+  hello:
+    desc: Print Hello World
+    cmds:
+      - echo "Hello World"
+
+  internal-task:
+    desc: A task should not be visible in the tree view or executable
+    cmds:
+      - task: hello
+
+  up-to-date-task:
+    desc: A task that is up-to-date
+    cmds:
+      - task: hello
+    status:
+      - "true"
+
+  out-of-date-task:
+    desc: A task that is out-of-date
+    cmds:
+      - task: hello
+    status:
+      - "false"
+
+  namespace:defined-in-root-file:
+    desc: Namespaced task that is defined in the root file
+    cmds:
+      - task: hello

@@ -1,0 +1,12 @@
+version: '3'
+
+tasks:
+  default:
+    desc: Namespaced (default) task in included file
+    cmds:
+      - task: :hello
+
+  defined-in-included-file:
+    desc: Namespaced task in included file
+    cmds:
+      - task: :hello
