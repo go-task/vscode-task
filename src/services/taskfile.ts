@@ -13,12 +13,14 @@ type ReleaseRequest = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["pa
 type ReleaseResponse = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["response"];
 
 const minimumRequiredVersion = '3.23.0';
+const minimumRequiredVersionForSorting = '3.24.0';
 
 class TaskfileService {
     private static _instance: TaskfileService;
     private static outputChannel: vscode.OutputChannel;
     private lastTaskName: string | undefined;
     private lastTaskDir: string | undefined;
+    private version: semver.SemVer | undefined;
 
     private constructor() {
         TaskfileService.outputChannel = vscode.window.createOutputChannel('Task');
@@ -46,23 +48,24 @@ class TaskfileService {
                 // If the version is a devel version, ignore all version checks
                 if (stdout.includes("devel")) {
                     log.info("Using development version of task");
+                    this.version = new semver.SemVer("999.0.0");
                     return resolve("ready");
                 }
 
                 // Get the installed version of task (if any)
-                let version = this.parseVersion(stdout);
+                this.version = this.parseVersion(stdout);
 
                 // If there is an error fetching the version, assume task is not installed
-                if (stderr !== "" || version === undefined) {
-                    log.error(version ? stderr : "Version is undefined");
+                if (stderr !== "" || this.version === undefined) {
+                    log.error(this.version ? stderr : "Version is undefined");
                     vscode.window.showErrorMessage("Task command not found.", "Install").then(this.buttonCallback);
                     return resolve("notInstalled");
                 }
 
                 // If the current version is older than the minimum required version, show an error
-                if (version && version.compare(minimumRequiredVersion) < 0) {
-                    log.error(`Task v${minimumRequiredVersion} is required to run this extension. The current version is v${version}`);
-                    vscode.window.showErrorMessage(`Task v${minimumRequiredVersion} is required to run this extension. The current version is v${version}.`, "Update").then(this.buttonCallback);
+                if (this.version && this.version.compare(minimumRequiredVersion) < 0) {
+                    log.error(`Task v${minimumRequiredVersion} is required to run this extension. The current version is v${this.version}`);
+                    vscode.window.showErrorMessage(`Task v${minimumRequiredVersion} is required to run this extension. The current version is v${this.version}.`, "Update").then(this.buttonCallback);
                     return resolve("outOfDate");
                 }
 
@@ -70,9 +73,9 @@ class TaskfileService {
                 // TODO: what happens if the user is offline?
                 if (checkForUpdates) {
                     this.getLatestVersion().then((latestVersion) => {
-                        if (version && latestVersion && version.compare(latestVersion) < 0) {
-                            log.info(`A new version of Task is available. Current version: v${version}, Latest version: v${latestVersion}`);
-                            vscode.window.showInformationMessage(`A new version of Task is available. Current version: v${version}, Latest version: v${latestVersion}`, "Update").then(this.buttonCallback);
+                        if (this.version && latestVersion && this.version.compare(latestVersion) < 0) {
+                            log.info(`A new version of Task is available. Current version: v${this.version}, Latest version: v${latestVersion}`);
+                            vscode.window.showInformationMessage(`A new version of Task is available. Current version: v${this.version}, Latest version: v${latestVersion}`, "Update").then(this.buttonCallback);
                         }
                         return resolve("ready");
                     }).catch((err) => {
@@ -150,7 +153,16 @@ class TaskfileService {
     public async read(dir: string): Promise<models.Taskfile> {
         log.info(`Searching for taskfile in: "${dir}"`);
         return await new Promise((resolve, reject) => {
-            let command = this.command('--list-all --json');
+            let additionalFlags = "";
+            // Sorting
+            if (settings.treeSort !== "default") {
+                if (this.version && this.version.compare(minimumRequiredVersionForSorting) < 0) {
+                    vscode.window.showWarningMessage(`Task version v${minimumRequiredVersionForSorting} is required to change the sort order. Falling back to "default".`, "Update").then(this.buttonCallback);
+                } else {
+                    additionalFlags = ` --sort ${settings.treeSort}`;
+                }
+            }
+            let command = this.command(`--list-all --json${additionalFlags}`);
             cp.exec(command, { cwd: dir }, (err: cp.ExecException | null, stdout: string) => {
                 if (err) {
                     log.error(err);
