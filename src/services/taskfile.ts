@@ -14,6 +14,23 @@ type ReleaseResponse = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["r
 
 const minimumRequiredVersion = '3.23.0';
 const minimumRequiredVersionForSorting = '3.24.0';
+const minimumRequiredVersionForExitCodes = '3.24.0';
+
+// General exit codes
+const errCodeOK = 0;
+const errCodeUnknown = 1;
+
+// Taskfile related exit codes
+const errCodeTaskfileNotFound = 100;
+const errCodeTaskfileAlreadyExists = 101;
+const errCodeTaskfileInvalid = 102;
+
+// Task related exit codes
+const errCodeTaskNotFound = 200;
+const errCodeTaskRunError = 201;
+const errCodeTaskInternal = 202;
+const errCodeTaskNameConflict = 203;
+const errCodeTaskCalledTooManyTimes = 204;
 
 class TaskfileService {
     private static _instance: TaskfileService;
@@ -150,7 +167,7 @@ class TaskfileService {
         }
     }
 
-    public async read(dir: string): Promise<models.Taskfile> {
+    public async read(dir: string): Promise<models.Taskfile | undefined> {
         log.info(`Searching for taskfile in: "${dir}"`);
         return await new Promise((resolve, reject) => {
             let additionalFlags = "";
@@ -163,10 +180,29 @@ class TaskfileService {
                 }
             }
             let command = this.command(`--list-all --json${additionalFlags}`);
-            cp.exec(command, { cwd: dir }, (err: cp.ExecException | null, stdout: string) => {
+            cp.exec(command, { cwd: dir }, (err: cp.ExecException | null, stdout: string, stderr: string) => {
                 if (err) {
                     log.error(err);
-                    return reject();
+                    // TODO: Bump the minimum required version to remove this conditional
+                    let shouldDisplayError = false;
+                    if (err.code && this.version && this.version.compare(minimumRequiredVersionForExitCodes) >= 0) {
+                        let exitCodesToDisplayErrorsFor = [
+                            errCodeTaskfileInvalid,
+                        ];
+                        if (exitCodesToDisplayErrorsFor.includes(err.code)) {
+                            shouldDisplayError = true;
+                        }
+                    } else {
+                        if (err.message.toLowerCase().includes("failed to parse")) {
+                            shouldDisplayError = true;
+                        }
+                    }
+                    // Display an error message
+                    if (shouldDisplayError) {
+                        vscode.window.showErrorMessage(stderr);
+                        return reject();
+                    }
+                    return resolve(undefined);
                 }
                 var taskfile: models.Taskfile = JSON.parse(stdout);
                 if (path.dirname(taskfile.location) !== dir) {

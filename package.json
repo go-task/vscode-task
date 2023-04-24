@@ -102,6 +102,12 @@
         "title": "Open Usage",
         "category": "Task",
         "icon": "$(globe)"
+      },
+      {
+        "command": "vscode-task.showDebugPanel",
+        "title": "Show Debug Panel",
+        "category": "Task",
+        "icon": "$(debug)"
       }
     ],
     "viewsContainers": {
@@ -124,18 +130,23 @@
     "viewsWelcome": [
       {
         "view": "vscode-task.tasks",
-        "contents": "Task not installed. Click the button below to install it.\n[Install Task](command:vscode-task.openInstallation)\nTo learn more about how to use Task [read our docs](https://taskfile.dev).",
+        "contents": "Task not installed. Click the button below to install it.\n[Install Task](command:vscode-task.openInstallation)\nTo learn more about how to use Task, [read our docs](https://taskfile.dev).",
         "when": "vscode-task:status == 'notInstalled'"
       },
       {
         "view": "vscode-task.tasks",
-        "contents": "Task is out of date. Click the button below to update it.\n[Update Task](command:vscode-task.openInstallation)\nTo learn more about how to use Task [read our docs](https://taskfile.dev).",
+        "contents": "Task is out of date. Click the button below to update it.\n[Update Task](command:vscode-task.openInstallation)\nTo learn more about how to use Task, [read our docs](https://taskfile.dev).",
         "when": "vscode-task:status == 'outOfDate'"
       },
       {
         "view": "vscode-task.tasks",
-        "contents": "No Taskfile found in this workspace. Click the button below to get started and initialize a new Taskfile.\n[Initialize Taskfile](command:vscode-task.init)\nTo learn more about how to use Task [read our docs](https://taskfile.dev).",
+        "contents": "No Taskfile found in this workspace. Click the button below to get started and initialize a new Taskfile.\n[Initialize Taskfile](command:vscode-task.init)\nTo learn more about how to use Task, [read our docs](https://taskfile.dev).",
         "when": "vscode-task:status == 'noTaskfile'"
+      },
+      {
+        "view": "vscode-task.tasks",
+        "contents": "An error occurred while reading the Taskfile. [Check the output panel](command:vscode-task.showDebugPanel) for more information\nTo learn more about how to use Task, [read our docs](https://taskfile.dev).",
+        "when": "vscode-task:status == 'error'"
       }
     ],
     "menus": {

@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Added the ability to sort tasks in the tree view.
+- Improve error handling in when Taskfiles contain errors (#25 by @pd93).
+- Added a new command: `Task: Show Debug Panel` to show the Task debug panel (#25 by @pd93).
+- Added the ability to sort tasks in the tree view (#20 by @pd93).
   - Configurable via `task.tree.sort` setting (values: `"default"` (default), `"alphanumeric"` or `"none"`).
 
 ## v0.1.1 - 2021-03-27

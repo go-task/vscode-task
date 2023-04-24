@@ -4,7 +4,7 @@ class Log {
     private static _instance: Log;
 
     constructor(
-        private _channel: vscode.OutputChannel = vscode.window.createOutputChannel("Task (Debug)")
+        public channel: vscode.OutputChannel = vscode.window.createOutputChannel("Task (Debug)")
     ) { }
 
     public static get instance() {
@@ -13,12 +13,12 @@ class Log {
 
     info(v: any) {
         console.log(v);
-        this._channel.appendLine(v);
+        this.channel.appendLine(v);
     }
 
     error(err: any) {
         console.error(err);
-        this._channel.appendLine(err);
+        this.channel.appendLine(err);
     }
 }
 

@@ -17,7 +17,7 @@ export class TaskExtension {
 
     public async update(checkForUpdates?: boolean): Promise<void> {
         // Do version checks
-        await services.taskfile.checkInstallation(checkForUpdates).then((status): Promise<PromiseSettledResult<models.Taskfile>[]> => {
+        await services.taskfile.checkInstallation(checkForUpdates).then((status): Promise<PromiseSettledResult<models.Taskfile | undefined>[]> => {
 
             // Set the status
             vscode.commands.executeCommand('setContext', 'vscode-task:status', status);
@@ -28,7 +28,7 @@ export class TaskExtension {
             }
 
             // Read taskfiles
-            let p: Promise<models.Taskfile>[] = [];
+            let p: Promise<models.Taskfile | undefined>[] = [];
             vscode.workspace.workspaceFolders?.forEach((folder) => {
                 p.push(services.taskfile.read(folder.uri.fsPath));
             });
@@ -36,8 +36,18 @@ export class TaskExtension {
 
         // If there are no valid taskfiles, set the status to "noTaskfile"
         }).then(results => {
-            this._taskfiles = results.filter(result => result.status === "fulfilled").map(result => <PromiseFulfilledResult<any>>result).map(result => result.value);
-            if (this._taskfiles.length === 0) {
+            this._taskfiles = results
+                .filter(result => result.status === "fulfilled")
+                .map(result => <PromiseFulfilledResult<any>>result)
+                .map(result => result.value)
+                .filter(value => value !== undefined);
+            let rejected = results
+                .filter(result => result.status === "rejected")
+                .map(result => <PromiseRejectedResult>result)
+                .map(result => result.reason);
+            if (rejected.length > 0) {
+                vscode.commands.executeCommand('setContext', 'vscode-task:status', "error");
+            } else if (this._taskfiles.length === 0) {
                 vscode.commands.executeCommand('setContext', 'vscode-task:status', "noTaskfile");
             }
         });
@@ -179,6 +189,11 @@ export class TaskExtension {
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.openUsage', () => {
             log.info("Command: vscode-task.openUsage");
             vscode.env.openExternal(vscode.Uri.parse('https://taskfile.dev/usage'));
+        }));
+
+        // Show debug window
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.showDebugPanel', () => {
+            log.channel.show();
         }));
     }
 
