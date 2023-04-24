@@ -4,6 +4,8 @@
 
 - Added the ability to sort tasks in the tree view.
   - Configurable via `task.tree.sort` setting (values: `"default"` (default), `"alphanumeric"` or `"none"`).
+- Added a cancel/timeout to file watcher to improve performance when making lots of file changes (#35 by @pd93).
+  - For example, `git stash pop` of a lot of `.yml` files would cause a huge lag spike as multiple update calls were made.
 
 ## v0.1.1 - 2021-03-27
 

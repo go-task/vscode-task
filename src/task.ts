@@ -8,6 +8,7 @@ export class TaskExtension {
     private _taskfiles: models.Taskfile[] = [];
     private _activityBar: elements.ActivityBar;
     private _watcher: vscode.FileSystemWatcher;
+    private _changeTimeout: NodeJS.Timeout | null = null;
 
     constructor() {
         this._activityBar = new elements.ActivityBar();
@@ -194,10 +195,19 @@ export class TaskExtension {
 
     private async _onDidTaskfileChange() {
         log.info("Detected changes to taskfile");
-        // If manual updating is turned off (update on save)
-        if (settings.updateOn !== "manual") {
-            await this.refresh(false);
+
+        // If there's already a timeout scheduled, cancel it to debounce the changes
+        if (this._changeTimeout) {
+            clearTimeout(this._changeTimeout);
         }
+
+        // Schedule a new timeout to refresh the task files after 500ms
+        this._changeTimeout = setTimeout(async () => {
+            // If manual updating is turned off (update on save)
+            if (settings.updateOn !== "manual") {
+                await this.refresh(false);
+            }
+        }, 200);
     }
 
     private _onDidChangeConfiguration(event: vscode.ConfigurationChangeEvent) {
