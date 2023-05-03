@@ -258,6 +258,15 @@
               "default": "task",
               "description": "Path to the Task binary. Can also the name of a binary in your `$PATH`."
             },
+            "outputTo": {
+              "type": "string",
+              "enum": [
+                "output",
+                "terminal"
+              ],
+              "default": "output",
+              "description": "Where to print the output of tasks. Note that the output panel does not support ANSI colors."
+            },
             "checkForUpdates": {
               "type": "boolean",
               "default": true,
@@ -305,6 +314,7 @@
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "18.x",
+    "@types/strip-ansi": "3.0.0",
     "@types/vscode": "^1.76.0",
     "@typescript-eslint/eslint-plugin": "^5.59.1",
     "@typescript-eslint/parser": "^5.59.0",
@@ -320,6 +330,7 @@
   "dependencies": {
     "@octokit/types": "^9.0.0",
     "octokit": "^2.0.14",
-    "semver": "^7.3.8"
+    "semver": "^7.3.8",
+    "strip-ansi": "6.0.1"
   }
 }

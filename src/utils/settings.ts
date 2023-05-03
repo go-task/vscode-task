@@ -5,6 +5,7 @@ class Settings {
     private static _instance: Settings;
     public updateOn!: string;
     public path!: string;
+    public outputTo!: string;
     public checkForUpdates!: boolean;
     public treeNesting!: boolean;
     public treeSort!: string;
@@ -27,6 +28,7 @@ class Settings {
         // Set the properties
         this.updateOn = config.get("updateOn") ?? "change";
         this.path = config.get("path") ?? "task";
+        this.outputTo = config.get("outputTo") ?? "output";
         this.checkForUpdates = config.get("checkForUpdates") ?? true;
         this.treeNesting = config.get("tree.nesting") ?? true;
         this.treeSort = config.get("tree.sort") ?? "default";
