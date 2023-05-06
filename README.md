@@ -17,6 +17,11 @@
   </p>
 </div>
 
+## Installation
+
+- [Visual Studio Code | Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=task.vscode-task)
+- [VSCodium | Open VSX Registry](https://open-vsx.org/extension/task/vscode-task)
+
 ## Features
 
 - View tasks in the sidebar.
