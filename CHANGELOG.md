@@ -8,6 +8,8 @@
   - Configurable via `task.tree.sort` setting (values: `"default"` (default), `"alphanumeric"` or `"none"`).
 - Added a cancel/timeout to file watcher to improve performance when making lots of file changes (#35 by @pd93).
   - For example, `git stash pop` of a lot of `.yml` files would cause a huge lag spike as multiple update calls were made.
+- This extension is now also published on the [Open VSX Registry](https://open-vsx.org/extension/task/vscode-task) (#26, #46 by @pd93).
+  - This means you can now install it in [VSCodeium](https://vscodium.com/).
 
 ## v0.1.1 - 2021-03-27
 
