@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.2.0 - 2023-05-07
 
 - Improve error handling in when Taskfiles contain errors (#25 by @pd93).
 - Added a new command: `Task: Show Debug Panel` to show the Task debug panel
@@ -21,7 +21,7 @@
   by @pd93).
   - This means you can now install it in [VSCodeium](https://vscodium.com/).
 
-## v0.1.1 - 2021-03-27
+## v0.1.1 - 2023-03-27
 
 - Fixed some installations (e.g. Brew) not detecting the Task version correctly
   (#13, #14 by @pd93).
