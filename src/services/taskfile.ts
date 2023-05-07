@@ -7,6 +7,7 @@ import * as semver from 'semver';
 import { log, settings } from '../utils';
 import { Octokit } from 'octokit';
 import { Endpoints } from "@octokit/types";
+import stripAnsi = require('strip-ansi');
 
 const octokit = new Octokit();
 type ReleaseRequest = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["parameters"];
@@ -225,37 +226,49 @@ class TaskfileService {
     }
 
     public async runTask(taskName: string, dir?: string): Promise<void> {
-        return await new Promise((resolve) => {
+        if (settings.outputTo === "terminal") {
             log.info(`Running task: "${taskName}" in: "${dir}"`);
+            var terminal: vscode.Terminal;
+            if (vscode.window.activeTerminal !== undefined) {
+                terminal = vscode.window.activeTerminal;
+            } else {
+                terminal = vscode.window.createTerminal("Task");
+            }
+            terminal.show();
+            terminal.sendText(this.command(taskName));
+        } else {
+            return await new Promise((resolve) => {
+                log.info(`Running task: "${taskName}" in: "${dir}"`);
 
-            // Spawn a child process
-            let child = cp.spawn(this.command(), [taskName], { cwd: dir });
+                // Spawn a child process
+                let child = cp.spawn(this.command(), [taskName], { cwd: dir });
 
-            // Clear the output channel and show it
-            TaskfileService.outputChannel.clear();
-            TaskfileService.outputChannel.show();
+                // Open the output
+                TaskfileService.outputChannel.clear();
+                TaskfileService.outputChannel.show();
 
-            // Listen for stderr
-            child.stderr.setEncoding('utf8');
-            child.stderr.on("data", data => {
-                TaskfileService.outputChannel.append(data.toString());
+                // Listen for stderr
+                child.stderr.setEncoding('utf8');
+                child.stderr.on("data", data => {
+                    TaskfileService.outputChannel.append(stripAnsi(data.toString()));
+                });
+
+                // Listen for stdout
+                child.stdout.setEncoding('utf8');
+                child.stdout.on("data", data => {
+                    TaskfileService.outputChannel.append(stripAnsi(data.toString()));
+                });
+
+                // When the task finishes, print the exit code and resolve the promise
+                child.on('close', code => {
+                    log.info(`Task completed with code ${code}`);
+                    TaskfileService.outputChannel.append(`task: completed with code ${code}\n`);
+                    this.lastTaskName = taskName;
+                    this.lastTaskDir = dir;
+                    return resolve();
+                });
             });
-
-            // Listen for stdout
-            child.stdout.setEncoding('utf8');
-            child.stdout.on("data", data => {
-                TaskfileService.outputChannel.append(data.toString());
-            });
-
-            // When the task finishes, print the exit code and resolve the promise
-            child.on('close', code => {
-                log.info(`Task completed with code ${code}`);
-                TaskfileService.outputChannel.append(`task: completed with code ${code}\n`);
-                this.lastTaskName = taskName;
-                this.lastTaskDir = dir;
-                return resolve();
-            });
-        });
+        }
     }
 
     public async goToDefinition(task: models.Task, preview: boolean = false): Promise<void> {

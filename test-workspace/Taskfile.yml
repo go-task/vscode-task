@@ -36,3 +36,10 @@ tasks:
     desc: Namespaced task that is defined in the root file
     cmds:
       - task: hello
+
+  task-prints-color:
+    cmds:
+      - echo -e "Prints in {{.RED}}red{{.NC}}"
+    vars:
+      RED: \033[1;31m
+      NC: \033[0m
