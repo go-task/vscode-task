@@ -330,7 +330,7 @@
   "dependencies": {
     "@octokit/types": "^9.0.0",
     "octokit": "^2.0.14",
-    "semver": "^7.3.8",
+    "semver": "^7.5.0",
     "strip-ansi": "6.0.1"
   }
 }
