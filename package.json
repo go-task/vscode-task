@@ -320,7 +320,7 @@
     "@typescript-eslint/parser": "^5.59.2",
     "@vscode/test-electron": "^2.2.3",
     "@vscode/vsce": "^2.19.0",
-    "esbuild": "^0.17.18",
+    "esbuild": "^0.18.13",
     "eslint": "^8.39.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
