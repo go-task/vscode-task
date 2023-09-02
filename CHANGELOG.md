@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.1 - 2023-09-02
+
+- Fixed a small bug with the new argument passing (#93 by @MaxCheetham).
+
 ## v0.3.0 - 2023-09-02
 
 - Added support for passing arguments in to tasks (#89 by @MaxCheetham).
