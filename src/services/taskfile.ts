@@ -1,12 +1,12 @@
+import { Endpoints } from "@octokit/types";
 import * as cp from 'child_process';
+import * as fs from 'fs';
+import { Octokit } from 'octokit';
+import * as path from 'path';
+import * as semver from 'semver';
 import * as vscode from 'vscode';
 import * as models from '../models';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as semver from 'semver';
 import { log, settings } from '../utils';
-import { Octokit } from 'octokit';
-import { Endpoints } from "@octokit/types";
 import stripAnsi = require('strip-ansi');
 
 const octokit = new Octokit();
@@ -48,11 +48,14 @@ class TaskfileService {
         return this._instance ?? (this._instance = new this());
     }
 
-    private command(command?: string): string {
+    private command(command?: string, cliArgs?: string): string {
         if (command === undefined) {
             return settings.path;
         }
-        return `${settings.path} ${command}`;
+        if (cliArgs === undefined) {
+            return `${settings.path} ${command}`;
+        }
+        return `${settings.path} ${command} -- ${cliArgs}`;
     }
 
     public async checkInstallation(checkForUpdates?: boolean): Promise<string> {
@@ -225,9 +228,9 @@ class TaskfileService {
         await this.runTask(this.lastTaskName, this.lastTaskDir);
     }
 
-    public async runTask(taskName: string, dir?: string): Promise<void> {
+    public async runTask(taskName: string, dir?: string, cliArgs?: string): Promise<void> {
         if (settings.outputTo === "terminal") {
-            log.info(`Running task: "${taskName}" in: "${dir}"`);
+            log.info(`Running task: "${taskName} ${cliArgs}" in: "${dir}"`);
             var terminal: vscode.Terminal;
             if (vscode.window.activeTerminal !== undefined) {
                 terminal = vscode.window.activeTerminal;
@@ -235,7 +238,7 @@ class TaskfileService {
                 terminal = vscode.window.createTerminal("Task");
             }
             terminal.show();
-            terminal.sendText(this.command(taskName));
+            terminal.sendText(this.command(taskName, cliArgs));
         } else {
             return await new Promise((resolve) => {
                 log.info(`Running task: "${taskName}" in: "${dir}"`);
