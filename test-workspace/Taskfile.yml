@@ -13,6 +13,11 @@ tasks:
     cmds:
       - echo "Hello World"
 
+  hello-with-args:
+    desc: Print custom arguments from Run Task With Args
+    cmds:
+      - echo {{.CLI_ARGS}}
+
   internal-task:
     desc: A task should not be visible in the tree view or executable
     cmds:
