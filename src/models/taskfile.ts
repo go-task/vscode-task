@@ -1,3 +1,7 @@
+export type TaskMapping = {
+    [key: string]: TaskMapping | null;
+};
+
 export interface Taskfile {
     tasks: Task[];
     location: string; // The location of the actual Taskfile
