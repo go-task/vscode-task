@@ -22,7 +22,7 @@ export class NamespaceTreeItem extends vscode.TreeItem {
     constructor(
         readonly label: string,
         readonly workspace: string,
-        readonly namespace: string,
+        readonly namespaceMap: any,
         readonly tasks: models.Task[],
         readonly collapsibleState: vscode.TreeItemCollapsibleState,
         readonly command?: vscode.Command

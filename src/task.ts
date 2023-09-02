@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as elements from './elements';
-import * as services from './services';
 import * as models from './models';
+import * as services from './services';
 import { log, settings } from './utils';
 
 export class TaskExtension {
@@ -18,40 +18,42 @@ export class TaskExtension {
 
     public async update(checkForUpdates?: boolean): Promise<void> {
         // Do version checks
-        await services.taskfile.checkInstallation(checkForUpdates).then((status): Promise<PromiseSettledResult<models.Taskfile | undefined>[]> => {
+        await services.taskfile.checkInstallation(checkForUpdates).then(
+            (status): Promise<PromiseSettledResult<models.Taskfile | undefined>[]> => {
 
-            // Set the status
-            vscode.commands.executeCommand('setContext', 'vscode-task:status', status);
+                // Set the status
+                vscode.commands.executeCommand('setContext', 'vscode-task:status', status);
 
-            // If the status is not "ready", reject the promise
-            if (status !== "ready") {
-                return Promise.reject();
-            }
+                // If the status is not "ready", reject the promise
+                if (status !== "ready") {
+                    return Promise.reject();
+                }
 
-            // Read taskfiles
-            let p: Promise<models.Taskfile | undefined>[] = [];
-            vscode.workspace.workspaceFolders?.forEach((folder) => {
-                p.push(services.taskfile.read(folder.uri.fsPath));
+                // Read taskfiles
+                let p: Promise<models.Taskfile | undefined>[] = [];
+                vscode.workspace.workspaceFolders?.forEach((folder) => {
+                    p.push(services.taskfile.read(folder.uri.fsPath));
+                });
+
+                return Promise.allSettled(p);
+
+                // If there are no valid taskfiles, set the status to "noTaskfile"
+            }).then(results => {
+                this._taskfiles = results
+                    .filter(result => result.status === "fulfilled")
+                    .map(result => <PromiseFulfilledResult<any>>result)
+                    .map(result => result.value)
+                    .filter(value => value !== undefined);
+                let rejected = results
+                    .filter(result => result.status === "rejected")
+                    .map(result => <PromiseRejectedResult>result)
+                    .map(result => result.reason);
+                if (rejected.length > 0) {
+                    vscode.commands.executeCommand('setContext', 'vscode-task:status', "error");
+                } else if (this._taskfiles.length === 0) {
+                    vscode.commands.executeCommand('setContext', 'vscode-task:status', "noTaskfile");
+                }
             });
-            return Promise.allSettled(p);
-
-        // If there are no valid taskfiles, set the status to "noTaskfile"
-        }).then(results => {
-            this._taskfiles = results
-                .filter(result => result.status === "fulfilled")
-                .map(result => <PromiseFulfilledResult<any>>result)
-                .map(result => result.value)
-                .filter(value => value !== undefined);
-            let rejected = results
-                .filter(result => result.status === "rejected")
-                .map(result => <PromiseRejectedResult>result)
-                .map(result => result.reason);
-            if (rejected.length > 0) {
-                vscode.commands.executeCommand('setContext', 'vscode-task:status', "error");
-            } else if (this._taskfiles.length === 0) {
-                vscode.commands.executeCommand('setContext', 'vscode-task:status', "noTaskfile");
-            }
-        });
     }
 
     public async refresh(checkForUpdates?: boolean): Promise<void> {
@@ -68,7 +70,6 @@ export class TaskExtension {
     }
 
     public registerCommands(context: vscode.ExtensionContext): void {
-
         // Initialise Taskfile
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.init', () => {
             log.info("Command: vscode-task.init");
@@ -119,19 +120,13 @@ export class TaskExtension {
         // Run task picker
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTaskPicker', () => {
             log.info("Command: vscode-task.runTaskPicker");
-            let items: vscode.QuickPickItem[] = [];
-            this._taskfiles.forEach(taskfile => {
-                if (taskfile.tasks.length > 0) {
-                    items = items.concat(new elements.QuickPickTaskSeparator(taskfile));
-                    taskfile.tasks.forEach(task => {
-                        items = items.concat(new elements.QuickPickTaskItem(taskfile, task));
-                    });
-                }
-            });
+            let items: vscode.QuickPickItem[] = this._loadTasksFromTaskfile();
+
             if (items.length === 0) {
                 vscode.window.showInformationMessage('No tasks found');
                 return;
             }
+
             vscode.window.showQuickPick(items).then((item) => {
                 if (item && item instanceof elements.QuickPickTaskItem) {
                     services.taskfile.runTask(item.label, item.taskfile.workspace);
@@ -206,6 +201,19 @@ export class TaskExtension {
 
         // Listen for configuration changes
         vscode.workspace.onDidChangeConfiguration(event => { this._onDidChangeConfiguration(event); });
+    }
+
+    private _loadTasksFromTaskfile() {
+        let items: vscode.QuickPickItem[] = [];
+        this._taskfiles.forEach(taskfile => {
+            if (taskfile.tasks.length > 0) {
+                items = items.concat(new elements.QuickPickTaskSeparator(taskfile));
+                taskfile.tasks.forEach(task => {
+                    items = items.concat(new elements.QuickPickTaskItem(taskfile, task));
+                });
+            }
+        });
+        return items;
     }
 
     private async _onDidTaskfileChange() {
