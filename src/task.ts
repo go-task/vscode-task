@@ -128,7 +128,11 @@ export class TaskExtension {
                     prompt: RUNTASKWITHARGS_PROMPT,
                     placeHolder: RUNTASKWITHARGS_PLACEHOLDER
                 }).then((cliArgsInput) => {
-                    services.taskfile.runTask(treeItem.task.name, treeItem.workspace);
+                    if (cliArgsInput === undefined) {
+                        vscode.window.showInformationMessage('No Args Supplied');
+                        return;
+                    }
+                    services.taskfile.runTask(treeItem.task.name, treeItem.workspace, cliArgsInput);
                 });
             }
         }));
