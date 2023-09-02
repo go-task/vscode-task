@@ -70,6 +70,9 @@ export class TaskExtension {
     }
 
     public registerCommands(context: vscode.ExtensionContext): void {
+        const RUNTASKWITHARGS_PROMPT = "Enter Command Line Arguments:";
+        const RUNTASKWITHARGS_PLACEHOLDER = "<arg1> <arg2> ...";
+
         // Initialise Taskfile
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.init', () => {
             log.info("Command: vscode-task.init");
@@ -117,6 +120,19 @@ export class TaskExtension {
             }
         }));
 
+        // Run task with args
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTaskWithArgs', (treeItem?: elements.TaskTreeItem) => {
+            log.info("vscode-task.runTaskWithArgs");
+            if (treeItem?.task) {
+                vscode.window.showInputBox({
+                    prompt: RUNTASKWITHARGS_PROMPT,
+                    placeHolder: RUNTASKWITHARGS_PLACEHOLDER
+                }).then((cliArgsInput) => {
+                    services.taskfile.runTask(treeItem.task.name, treeItem.workspace);
+                });
+            }
+        }));
+
         // Run task picker
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTaskPicker', () => {
             log.info("Command: vscode-task.runTaskPicker");
@@ -131,6 +147,32 @@ export class TaskExtension {
                 if (item && item instanceof elements.QuickPickTaskItem) {
                     services.taskfile.runTask(item.label, item.taskfile.workspace);
                 }
+            });
+        }));
+
+        // Run task picker with args
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTaskPickerWithArgs', () => {
+            log.info("Command: vscode-task.runTaskPickerWithArgs");
+            let items: vscode.QuickPickItem[] = this._loadTasksFromTaskfile();
+
+            if (items.length === 0) {
+                vscode.window.showInformationMessage('No tasks found');
+                return;
+            }
+
+            vscode.window.showQuickPick(items).then((item) => {
+                vscode.window.showInputBox({
+                    prompt: RUNTASKWITHARGS_PROMPT,
+                    placeHolder: RUNTASKWITHARGS_PLACEHOLDER
+                }).then((cliArgsInput) => {
+                    if (cliArgsInput === undefined) {
+                        vscode.window.showInformationMessage('No Args Supplied');
+                        return;
+                    }
+                    if (item && item instanceof elements.QuickPickTaskItem) {
+                        services.taskfile.runTask(item.label, item.taskfile.workspace, cliArgsInput);
+                    }
+                });
             });
         }));
 

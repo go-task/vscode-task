@@ -68,8 +68,20 @@
         "icon": "$(play)"
       },
       {
+        "command": "vscode-task.runTaskWithArgs",
+        "title": "Run Task With Args",
+        "category": "Task",
+        "icon": "$(run-all)"
+      },
+      {
         "command": "vscode-task.runTaskPicker",
         "title": "Run Task",
+        "category": "Task",
+        "icon": "$(play)"
+      },
+      {
+        "command": "vscode-task.runTaskPickerWithArgs",
+        "title": "Run Task With Args",
         "category": "Task",
         "icon": "$(play)"
       },
@@ -156,6 +168,10 @@
           "when": "false"
         },
         {
+          "command": "vscode-task.runTaskWithArgs",
+          "when": "false"
+        },
+        {
           "command": "vscode-task.goToDefinition",
           "when": "false"
         }
@@ -184,14 +200,19 @@
       ],
       "view/item/context": [
         {
-          "command": "vscode-task.runTask",
-          "when": "view == vscode-task.tasks && viewItem == taskTreeItem",
-          "group": "inline"
-        },
-        {
           "command": "vscode-task.goToDefinition",
           "when": "view == vscode-task.tasks && viewItem == taskTreeItem",
-          "group": "inline"
+          "group": "inline@1"
+        },
+        {
+          "command": "vscode-task.runTask",
+          "when": "view == vscode-task.tasks && viewItem == taskTreeItem",
+          "group": "inline@2"
+        },
+        {
+          "command": "vscode-task.runTaskWithArgs",
+          "when": "view == vscode-task.tasks && viewItem == taskTreeItem",
+          "group": "inline@3"
         }
       ]
     },
