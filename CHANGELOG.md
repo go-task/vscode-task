@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.3.0 - 2023-09-02
+
+- Added support for passing arguments in to tasks (#89 by @MaxCheetham).
+- Fixed some bugs with the tree view not displaying tasks correctly (#59, #79,
+  #90 by @MaxCheetham).
+
 ## v0.2.0 - 2023-05-07
 
 - Improve error handling in when Taskfiles contain errors (#25 by @pd93).
