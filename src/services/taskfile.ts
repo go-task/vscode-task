@@ -244,7 +244,14 @@ class TaskfileService {
                 log.info(`Running task: "${taskName}" in: "${dir}"`);
 
                 // Spawn a child process
-                let child = cp.spawn(this.command(), [taskName], { cwd: dir });
+                let args = [];
+                if (cliArgs === undefined) {
+                    args = [taskName];
+                } else {
+                    args = [taskName, "--", `${cliArgs}`];
+                }
+
+                let child = cp.spawn(this.command(), args, { cwd: dir });
 
                 // Open the output
                 TaskfileService.outputChannel.clear();
