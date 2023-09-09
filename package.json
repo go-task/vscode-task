@@ -345,7 +345,7 @@
     "eslint": "^8.2.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
-    "ovsx": "^0.8.1",
+    "ovsx": "^0.8.3",
     "typescript": "^5.0.4"
   },
   "dependencies": {
