@@ -346,7 +346,7 @@
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
     "ovsx": "^0.8.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
     "@octokit/types": "^9.0.0",
