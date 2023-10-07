@@ -336,7 +336,7 @@
     "@types/mocha": "^10.0.1",
     "@types/node": "20.x",
     "@types/strip-ansi": "3.0.0",
-    "@types/vscode": "^1.76.0",
+    "@types/vscode": "^1.83.0",
     "@typescript-eslint/eslint-plugin": "^5.59.1",
     "@typescript-eslint/parser": "^5.62.0",
     "@vscode/test-electron": "^2.3.4",
