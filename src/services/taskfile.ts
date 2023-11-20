@@ -13,9 +13,7 @@ const octokit = new Octokit();
 type ReleaseRequest = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["parameters"];
 type ReleaseResponse = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["response"];
 
-const minimumRequiredVersion = '3.23.0';
-const minimumRequiredVersionForSorting = '3.24.0';
-const minimumRequiredVersionForExitCodes = '3.24.0';
+const minimumRequiredVersion = '3.24.0';
 
 // General exit codes
 const errCodeOK = 0;
@@ -177,19 +175,14 @@ class TaskfileService {
             let additionalFlags = "";
             // Sorting
             if (settings.treeSort !== "default") {
-                if (this.version && this.version.compare(minimumRequiredVersionForSorting) < 0) {
-                    vscode.window.showWarningMessage(`Task version v${minimumRequiredVersionForSorting} is required to change the sort order. Falling back to "default".`, "Update").then(this.buttonCallback);
-                } else {
-                    additionalFlags = ` --sort ${settings.treeSort}`;
-                }
+                additionalFlags = ` --sort ${settings.treeSort}`;
             }
             let command = this.command(`--list-all --json${additionalFlags}`);
             cp.exec(command, { cwd: dir }, (err: cp.ExecException | null, stdout: string, stderr: string) => {
                 if (err) {
                     log.error(err);
-                    // TODO: Bump the minimum required version to remove this conditional
                     let shouldDisplayError = false;
-                    if (err.code && this.version && this.version.compare(minimumRequiredVersionForExitCodes) >= 0) {
+                    if (err.code) {
                         let exitCodesToDisplayErrorsFor = [
                             errCodeTaskfileInvalid,
                         ];
