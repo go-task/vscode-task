@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.2 - 2023-11-20
+
+- Fixed another small bug with the new argument passing (#94 by @MaxCheetham).
+- Bumped the minimum required version of `task` to v3.24.0.
+
 ## v0.3.1 - 2023-09-02
 
 - Fixed a small bug with the new argument passing (#93 by @MaxCheetham).
