@@ -6,6 +6,7 @@ class Settings {
     public updateOn!: string;
     public path!: string;
     public outputTo!: string;
+    public outputToNewTerminal!: boolean;
     public checkForUpdates!: boolean;
     public treeNesting!: boolean;
     public treeSort!: string;
@@ -29,6 +30,7 @@ class Settings {
         this.updateOn = config.get("updateOn") ?? "change";
         this.path = config.get("path") ?? "task";
         this.outputTo = config.get("outputTo") ?? "output";
+        this.outputToNewTerminal = config.get("outputToNewTerminal") ?? false;
         this.checkForUpdates = config.get("checkForUpdates") ?? true;
         this.treeNesting = config.get("tree.nesting") ?? true;
         this.treeSort = config.get("tree.sort") ?? "default";

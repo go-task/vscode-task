@@ -225,7 +225,7 @@ class TaskfileService {
         if (settings.outputTo === "terminal") {
             log.info(`Running task: "${taskName} ${cliArgs}" in: "${dir}"`);
             var terminal: vscode.Terminal;
-            if (vscode.window.activeTerminal !== undefined) {
+            if (vscode.window.activeTerminal !== undefined && settings.outputToNewTerminal === false) {
                 terminal = vscode.window.activeTerminal;
             } else {
                 terminal = vscode.window.createTerminal("Task");

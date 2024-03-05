@@ -288,6 +288,11 @@
               "default": "output",
               "description": "Where to print the output of tasks. Note that the output panel does not support ANSI colors."
             },
+            "outputToNewTerminal": {
+              "type": "boolean",
+              "default": false,
+              "description": "When using outputTo=terminal whether to use a new Terminal instance or reuse the last instance."
+            },
             "checkForUpdates": {
               "type": "boolean",
               "default": true,
