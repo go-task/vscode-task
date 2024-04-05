@@ -288,11 +288,6 @@
               "default": "output",
               "description": "Where to print the output of tasks. Note that the output panel does not support ANSI colors."
             },
-            "outputToNewTerminal": {
-              "type": "boolean",
-              "default": false,
-              "description": "When using outputTo=terminal whether to use a new Terminal instance or reuse the last instance."
-            },
             "checkForUpdates": {
               "type": "boolean",
               "default": true,
@@ -316,6 +311,21 @@
                   ],
                   "default": "default",
                   "description": "The order in which to display tasks in the tree view."
+                }
+              }
+            },
+            "terminal": {
+              "type": "object",
+              "description": "Terminal configuration options. Only used when outputTo=terminal.",
+              "properties": {
+                "per": {
+                  "type": "string",
+                  "enum": [
+                    "window",
+                    "task"
+                  ],
+                  "default": "window",
+                  "description": "When to spawn a new Terminal instance."
                 }
               }
             }

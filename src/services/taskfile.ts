@@ -6,7 +6,7 @@ import * as path from 'path';
 import * as semver from 'semver';
 import * as vscode from 'vscode';
 import * as models from '../models';
-import { log, settings } from '../utils';
+import { OutputTo, TerminalPer, TreeSort, log, settings } from '../utils';
 import stripAnsi = require('strip-ansi');
 
 const octokit = new Octokit();
@@ -174,8 +174,8 @@ class TaskfileService {
         return await new Promise((resolve, reject) => {
             let additionalFlags = "";
             // Sorting
-            if (settings.treeSort !== "default") {
-                additionalFlags = ` --sort ${settings.treeSort}`;
+            if (settings.tree.sort !== TreeSort.default) {
+                additionalFlags = ` --sort ${settings.tree.sort}`;
             }
             let command = this.command(`--list-all --json${additionalFlags}`);
             cp.exec(command, { cwd: dir }, (err: cp.ExecException | null, stdout: string, stderr: string) => {
@@ -222,12 +222,14 @@ class TaskfileService {
     }
 
     public async runTask(taskName: string, dir?: string, cliArgs?: string): Promise<void> {
-        if (settings.outputTo === "terminal") {
+        if (settings.outputTo === OutputTo.terminal) {
             log.info(`Running task: "${taskName} ${cliArgs}" in: "${dir}"`);
             var terminal: vscode.Terminal;
-            if (vscode.window.activeTerminal !== undefined && settings.outputToNewTerminal === false) {
+            if (vscode.window.activeTerminal !== undefined && settings.terminal.per === TerminalPer.window) {
+                log.info("Using existing terminal");
                 terminal = vscode.window.activeTerminal;
             } else {
+                log.info("Using new terminal");
                 terminal = vscode.window.createTerminal("Task");
             }
             terminal.show();

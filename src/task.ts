@@ -3,6 +3,7 @@ import * as elements from './elements';
 import * as models from './models';
 import * as services from './services';
 import { log, settings } from './utils';
+import { UpdateOn } from './utils/settings';
 
 export class TaskExtension {
     private _taskfiles: models.Taskfile[] = [];
@@ -13,7 +14,7 @@ export class TaskExtension {
     constructor() {
         this._activityBar = new elements.ActivityBar();
         this._watcher = vscode.workspace.createFileSystemWatcher("**/*.{yml,yaml}");
-        this.setTreeNesting(settings.treeNesting);
+        this.setTreeNesting(settings.tree.nesting);
     }
 
     public async update(checkForUpdates?: boolean): Promise<void> {
@@ -273,7 +274,7 @@ export class TaskExtension {
         // Schedule a new timeout to refresh the task files after 500ms
         this._changeTimeout = setTimeout(async () => {
             // If manual updating is turned off (update on save)
-            if (settings.updateOn !== "manual") {
+            if (settings.updateOn !== UpdateOn.manual) {
                 await this.refresh(false);
             }
         }, 200);
