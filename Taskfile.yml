@@ -17,6 +17,11 @@ tasks:
     cmds:
       - rm -rf node_modules
 
+  yarn:update:
+    desc: Update dependencies
+    cmds:
+      - yarn upgrade-interactive --latest
+
   test:
     desc: Run tests
     deps: [yarn:install]

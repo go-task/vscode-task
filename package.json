@@ -356,26 +356,25 @@
     "vscode:prepublish": "yarn run bundle"
   },
   "devDependencies": {
-    "@types/glob": "^8.1.0",
-    "@types/mocha": "^10.0.1",
+    "@types/glob": "8.1.0",
+    "@types/mocha": "10.0.6",
     "@types/node": "20.x",
     "@types/strip-ansi": "3.0.0",
-    "@types/vscode": "^1.76.0",
-    "@typescript-eslint/eslint-plugin": "^5.59.1",
-    "@typescript-eslint/parser": "^5.62.0",
-    "@vscode/test-electron": "^2.3.4",
-    "@vscode/vsce": "^2.19.0",
-    "esbuild": "^0.19.2",
-    "eslint": "^8.2.0",
-    "glob": "^8.1.0",
-    "mocha": "^10.2.0",
-    "ovsx": "^0.8.1",
-    "typescript": "^5.0.4"
+    "@types/vscode": "1.76.0",
+    "@typescript-eslint/eslint-plugin": "7.5.0",
+    "@typescript-eslint/parser": "7.5.0",
+    "@vscode/test-electron": "2.3.9",
+    "@vscode/vsce": "2.24.0",
+    "esbuild": "0.20.2",
+    "eslint": "8.57.0",
+    "mocha": "10.4.0",
+    "ovsx": "0.9.0",
+    "typescript": "5.4.4"
   },
   "dependencies": {
-    "@octokit/types": "^9.0.0",
-    "octokit": "^2.0.14",
-    "semver": "^7.5.0",
+    "@octokit/types": "13.1.0",
+    "octokit": "3.2.0",
+    "semver": "7.6.0",
     "strip-ansi": "6.0.1"
   }
 }
