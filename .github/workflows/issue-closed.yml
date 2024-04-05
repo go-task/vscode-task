@@ -1,0 +1,29 @@
+name: issue closed
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  issue-closed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GH_PAT}}
+          script: |
+            const labels = await github.paginate(
+              github.rest.issues.listLabelsOnIssue, {
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              }
+            )
+            if (labels.find(label => label.name === 'state: needs triage')) {
+              github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: 'state: needs triage'
+              })
+            }
