@@ -6,7 +6,7 @@ import * as path from 'path';
 import * as semver from 'semver';
 import * as vscode from 'vscode';
 import * as models from '../models';
-import { OutputTo, TerminalPer, TreeSort, log, settings } from '../utils';
+import { OutputTo, TerminalClose, TerminalPer, TreeSort, log, settings } from '../utils';
 import stripAnsi = require('strip-ansi');
 
 const octokit = new Octokit();
@@ -34,6 +34,7 @@ const errCodeTaskCalledTooManyTimes = 204;
 class TaskfileService {
     private static _instance: TaskfileService;
     private static outputChannel: vscode.OutputChannel;
+    private static terminal: vscode.Terminal;
     private lastTaskName: string | undefined;
     private lastTaskDir: string | undefined;
     private version: semver.SemVer | undefined;
@@ -224,16 +225,18 @@ class TaskfileService {
     public async runTask(taskName: string, dir?: string, cliArgs?: string): Promise<void> {
         if (settings.outputTo === OutputTo.terminal) {
             log.info(`Running task: "${taskName} ${cliArgs}" in: "${dir}"`);
-            var terminal: vscode.Terminal;
-            if (vscode.window.activeTerminal !== undefined && settings.terminal.per === TerminalPer.window) {
-                log.info("Using existing terminal");
-                terminal = vscode.window.activeTerminal;
-            } else {
-                log.info("Using new terminal");
-                terminal = vscode.window.createTerminal("Task");
+            if (TaskfileService.terminal !== undefined && settings.terminal.close === TerminalClose.onNextTask) {
+                log.info("Closing old terminal");
+                TaskfileService.terminal.dispose();
             }
-            terminal.show();
-            terminal.sendText(this.command(taskName, cliArgs));
+            if (TaskfileService.terminal === undefined || TaskfileService.terminal.exitStatus !== undefined || settings.terminal.per === TerminalPer.task) {
+                log.info("Using new terminal");
+                TaskfileService.terminal = vscode.window.createTerminal("Task");
+            } else {
+                log.info("Using existing terminal");
+            }
+            TaskfileService.terminal.show();
+            TaskfileService.terminal.sendText(this.command(taskName, cliArgs));
         } else {
             return await new Promise((resolve) => {
                 log.info(`Running task: "${taskName}" in: "${dir}"`);

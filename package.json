@@ -326,6 +326,15 @@
                   ],
                   "default": "window",
                   "description": "When to spawn a new Terminal instance."
+                },
+                "close": {
+                  "type": "string",
+                  "enum": [
+                    "never",
+                    "onNextTask"
+                  ],
+                  "default": "never",
+                  "description": "When to close the Terminal instance."
                 }
               }
             }

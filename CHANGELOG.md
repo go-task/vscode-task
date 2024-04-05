@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Added `terminal.per` setting to allow a new terminal per task (#125, #126 by
+  @yoiang).
+- Added `terminal.close` setting to control if the existing terminal should
+  close before running another task (by @pd93).
+- General improvements to how terminals are handled (by @pd93).
+
 ## v0.3.2 - 2023-11-20
 
 - Fixed another small bug with the new argument passing (#94 by @MaxCheetham).

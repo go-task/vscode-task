@@ -80,6 +80,7 @@ export enum TreeSort {
 class TerminalSettings {
     private static _instance: TerminalSettings;
     public per!: TerminalPer;
+    public close!: TerminalClose;
 
     constructor() {
         this.update();
@@ -98,12 +99,19 @@ class TerminalSettings {
 
         // Set the properties
         this.per = config.get("terminal.per") ?? TerminalPer.window;
+        this.close = config.get("terminal.close") ?? TerminalClose.never;
     }
 }
 
 export enum TerminalPer {
     window = "window",
     task = "task"
+}
+
+export enum TerminalClose {
+    never = "never",
+    taskComplete = "taskComplete",
+    onNextTask = "onNextTask"
 }
 
 export const settings = Settings.instance;
