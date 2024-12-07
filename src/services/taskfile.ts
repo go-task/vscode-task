@@ -37,6 +37,7 @@ class TaskfileService {
     private static terminal: vscode.Terminal;
     private lastTaskName: string | undefined;
     private lastTaskDir: string | undefined;
+    private lastTaskCliArgs: string | undefined;
     private version: semver.SemVer | undefined;
 
     private constructor() {
@@ -219,7 +220,7 @@ class TaskfileService {
             vscode.window.showErrorMessage(`No task has been run yet.`);
             return;
         }
-        await this.runTask(this.lastTaskName, this.lastTaskDir);
+        await this.runTask(this.lastTaskName, this.lastTaskDir, this.lastTaskCliArgs);
     }
 
     public async runTask(taskName: string, dir?: string, cliArgs?: string): Promise<void> {
@@ -273,6 +274,7 @@ class TaskfileService {
                     TaskfileService.outputChannel.append(`task: completed with code ${code}\n`);
                     this.lastTaskName = taskName;
                     this.lastTaskDir = dir;
+                    this.lastTaskCliArgs = cliArgs;
                     return resolve();
                 });
             });
