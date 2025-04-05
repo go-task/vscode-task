@@ -361,7 +361,7 @@
     "@types/node": "20.x",
     "@types/strip-ansi": "3.0.0",
     "@types/vscode": "1.76.0",
-    "@typescript-eslint/eslint-plugin": "7.5.0",
+    "@typescript-eslint/eslint-plugin": "7.18.0",
     "@typescript-eslint/parser": "7.5.0",
     "@vscode/test-cli": "^0.0.8",
     "@vscode/test-electron": "2.3.9",
