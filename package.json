@@ -364,8 +364,8 @@
     "lint": "eslint src --ext ts",
     "test": "vscode-test",
     "package": "vsce package",
-    "publish:vsce": "vsce publish",
-    "publish:ovsx": "ovsx publish",
+    "publish:vsce": "vsce publish --no-dependencies",
+    "publish:ovsx": "ovsx publish --no-dependencies",
     "vscode:prepublish": "pnpm run bundle"
   },
   "devDependencies": {

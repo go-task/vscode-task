@@ -6,7 +6,6 @@ src/**
 node_modules/**
 Taskfile.yml
 .gitignore
-.yarnrc
 **/tsconfig.json
 **/.eslintrc.json
 **/*.map

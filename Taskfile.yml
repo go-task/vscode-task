@@ -1,70 +1,62 @@
-version: '3'
+version: "3"
 
 tasks:
-  yarn:install:
+  install:
     run: once
     desc: Install node modules
     sources:
       - package.json
-      - yarn.lock
+      - pnpm-lock.yaml
     generates:
       - node_modules/**/*
     cmds:
-      - yarn install
+      - pnpm install
 
-  yarn:clean:
+  clean:
     desc: Remove node modules
     cmds:
+      - task: clean-build
       - rm -rf node_modules
-
-  yarn:update:
-    desc: Update dependencies
-    cmds:
-      - yarn upgrade-interactive --latest
-
-  test:
-    desc: Run tests
-    deps: [yarn:install]
-    cmds:
-      - yarn run test
-
-  lint:
-    desc: Run linter checks
-    deps: [yarn:install]
-    cmds:
-      - yarn run lint
-
-  bundle:
-    desc: Bundle the extension into a single JS file
-    deps: [yarn:install, clean-build]
-    sources:
-      - src/**/*
-      - package.json
-    generates:
-      - out/extension.js
-    cmds:
-      - yarn run bundle
-
-  package:
-    desc: Package extension into a .vsix file
-    deps: [yarn:install, bundle]
-    sources:
-      - README.md
-      - CHANGELOG.md
-      - LICENSE
-      - res/**/*
-      - out/extension.js
-    generates:
-      - "*.vsix"
-    cmds:
-      - yarn run package
+      - rm -rf .task
 
   clean-build:
     cmds:
       - rm -rf out
       - rm -rf *.vsix
 
-  clean:
+  test:
+    desc: Run tests
+    deps: [install]
     cmds:
-      - task: clean-build
-      - rm -rf .task
+      - pnpm run test
+
+  lint:
+    desc: Run linter checks
+    deps: [install]
+    cmds:
+      - pnpm run lint
+
+  bundle:
+    desc: Bundle the extension into a single JS file
+    deps: [clean-build, install]
+    sources:
+      - src/**/*
+      - package.json
+    generates:
+      - out/extension.js
+    cmds:
+      - pnpm run bundle
+
+  package:
+    desc: Package extension into a .vsix file
+    deps: [clean-build, install]
+    sources:
+      - README.md
+      - CHANGELOG.md
+      - LICENSE
+      - res/**/*
+    generates:
+      - out/extension.js
+      - "*.vsix"
+    cmds:
+      - pnpm run package

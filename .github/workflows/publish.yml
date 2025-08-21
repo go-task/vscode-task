@@ -3,7 +3,7 @@ name: Publish
 on:
   push:
     tags:
-      - "*"
+      - '*'
 
 jobs:
   check-versions:
@@ -26,9 +26,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
       - name: Publish
-        run: yarn run publish:vsce
+        run: pnpm run publish:vsce
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
   publish-ovsx:
@@ -38,8 +38,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
       - name: Publish
-        run: yarn run publish:ovsx
+        run: pnpm run publish:ovsx
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
