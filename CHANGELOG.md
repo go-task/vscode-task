@@ -7,6 +7,7 @@
 - Added `terminal.close` setting to control if the existing terminal should
   close before running another task (by @pd93).
 - General improvements to how terminals are handled (by @pd93).
+- Updated extension to use ESM and pnpm (#205 by @pd93).
 
 ## v0.3.2 - 2023-11-20
 
