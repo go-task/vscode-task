@@ -242,6 +242,11 @@ class TaskfileService {
             }
             TaskfileService.terminal.show();
             TaskfileService.terminal.sendText(this.command(taskName, cliArgs));
+            log.info(`Task completed on the terminal`);
+            TaskfileService.outputChannel.append(`task: completed on the terminal\n`);
+            this.lastTaskName = taskName;
+            this.lastTaskDir = dir;
+            this.lastTaskCliArgs = cliArgs;
         } else {
             return await new Promise((resolve) => {
                 log.info(`Running task: "${taskName}" in: "${dir}"`);
