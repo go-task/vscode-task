@@ -64,8 +64,11 @@ class TaskfileService {
         }
         return await new Promise((resolve) => {
             let command = this.command('--version');
-            cp.exec(command, (_, stdout: string, stderr: string) => {
+            // Determine the root of the working directory of the project
+            let workspaceFolders = vscode.workspace.workspaceFolders;
+            let cwd = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri.fsPath : undefined;
 
+            cp.exec(command, { cwd }, (_, stdout: string, stderr: string) => {
                 // If the version is a devel version, ignore all version checks
                 if (stdout.includes("devel")) {
                     log.info("Using development version of task");
