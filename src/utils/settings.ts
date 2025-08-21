@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { log } from './';
+import { log } from './log.js';
 
 class Settings {
     private static _instance: Settings;

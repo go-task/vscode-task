@@ -5,9 +5,10 @@ import { Octokit } from 'octokit';
 import * as path from 'path';
 import * as semver from 'semver';
 import * as vscode from 'vscode';
-import * as models from '../models';
-import { OutputTo, TerminalClose, TerminalPer, TreeSort, log, settings } from '../utils';
-import stripAnsi = require('strip-ansi');
+import { Taskfile, Task } from '../models/taskfile.js';
+import { OutputTo, TerminalClose, TerminalPer, TreeSort, settings } from '../utils/settings.js';
+import { log } from '../utils/log.js';
+import stripAnsi from 'strip-ansi';
 
 const octokit = new Octokit();
 type ReleaseRequest = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["parameters"];
@@ -170,7 +171,7 @@ class TaskfileService {
         }
     }
 
-    public async read(dir: string): Promise<models.Taskfile | undefined> {
+    public async read(dir: string): Promise<Taskfile | undefined> {
         log.info(`Searching for taskfile in: "${dir}"`);
         return await new Promise((resolve, reject) => {
             let additionalFlags = "";
@@ -202,7 +203,7 @@ class TaskfileService {
                     }
                     return resolve(undefined);
                 }
-                var taskfile: models.Taskfile = JSON.parse(stdout);
+                var taskfile: Taskfile = JSON.parse(stdout);
                 if (path.dirname(taskfile.location) !== dir) {
                     log.info(`Ignoring taskfile: "${taskfile.location}" (outside of workspace)`);
                     return reject();
@@ -279,7 +280,7 @@ class TaskfileService {
         }
     }
 
-    public async goToDefinition(task: models.Task, preview: boolean = false): Promise<void> {
+    public async goToDefinition(task: Task, preview: boolean = false): Promise<void> {
         log.info(`Navigating to "${task.name}" definition in: "${task.location.taskfile}"`);
 
         let position = new vscode.Position(task.location.line - 1, task.location.column - 1);
@@ -303,4 +304,4 @@ class TaskfileService {
     }
 }
 
-export const taskfile = TaskfileService.instance;
+export const taskfileSvc = TaskfileService.instance;
