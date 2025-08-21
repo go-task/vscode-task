@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.4.0 - 2025-08-21
 
 - Added `terminal.per` setting to allow a new terminal per task (#125, #126 by
   @yoiang).

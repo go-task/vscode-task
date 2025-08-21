@@ -5,7 +5,7 @@
   "homepage": "https://taskfile.dev",
   "icon": "res/icon.png",
   "license": "MIT",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "publisher": "task",
   "author": {
     "name": "Pete Davison",
