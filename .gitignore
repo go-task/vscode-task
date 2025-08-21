@@ -5,4 +5,3 @@ node_modules
 *.vsix
 .task
 test-workspace/.vscode
-.yarn

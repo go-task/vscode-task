@@ -350,16 +350,17 @@
     }
   },
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "bundle": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=esm --platform=node --minify",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "yarn run compile && yarn run lint",
+    "pretest": "pnpm run compile && pnpm run lint",
     "lint": "eslint src --ext ts",
     "test": "vscode-test",
     "package": "vsce package",
     "publish:vsce": "vsce publish",
     "publish:ovsx": "ovsx publish",
-    "vscode:prepublish": "yarn run bundle"
+    "vscode:prepublish": "pnpm run bundle"
   },
   "devDependencies": {
     "@types/glob": "8.1.0",
