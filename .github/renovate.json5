@@ -17,5 +17,8 @@
       "matchCategories": ["js", "node"],
       "addLabels": ["lang: javascript"]
     }
-  ]
+  ],
+  // This should match our minimum supported version of VS Code so we should
+  // Update it manually.
+  "ignoreDeps": ["@types/vscode"]
 }
