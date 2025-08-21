@@ -1,5 +1,4 @@
 name: Test
-
 on:
   pull_request:
   push:
@@ -25,10 +24,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
-          cache: "pnpm"
+          # cache: "pnpm"
 
-      - run: pnpm install
-      - run: xvfb-run -a pnpm test
-        if: runner.os == 'Linux'
-      - run: pnpm test
-        if: runner.os != 'Linux'
+      # This is disabled until https://github.com/microsoft/vscode-test-cli/issues/77
+      # is resolved. We don't have any tests anyway.
+      # - run: pnpm install
+      # - run: xvfb-run -a pnpm test
+      #   if: runner.os == 'Linux'
+      # - run: pnpm test
+      #   if: runner.os != 'Linux'
