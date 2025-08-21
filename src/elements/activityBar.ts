@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
-import * as providers from '../providers';
-import * as models from '../models';
+import { TaskTreeDataProvider } from '../providers/taskTreeDataProvider.js';
+import { Taskfile } from '../models/taskfile.js';
 
 export class ActivityBar {
-    private _provider: providers.TaskTreeDataProvider;
+    private _provider: TaskTreeDataProvider;
 
     constructor() {
         // Create the data provider
-        this._provider = new providers.TaskTreeDataProvider();
+        this._provider = new TaskTreeDataProvider();
 
         // Register the tree view with its data provider
         vscode.window.createTreeView('vscode-task.tasks', {
@@ -21,7 +21,7 @@ export class ActivityBar {
         this._provider.refresh();
     }
 
-    public refresh(taskfiles?: models.Taskfile[]) {
+    public refresh(taskfiles?: Taskfile[]) {
         this._provider.refresh(taskfiles);
     }
 }

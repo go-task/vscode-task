@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { log } from './utils/log';
-import { TaskExtension } from './task';
+import { log } from './utils/log.js';
+import { TaskExtension } from './task.js';
 
 export function activate(context: vscode.ExtensionContext) {
 	log.info("Extension activated");

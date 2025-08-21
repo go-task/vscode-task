@@ -5,9 +5,10 @@ import { Octokit } from 'octokit';
 import * as path from 'path';
 import * as semver from 'semver';
 import * as vscode from 'vscode';
-import * as models from '../models';
-import { OutputTo, TerminalClose, TerminalPer, TreeSort, log, settings } from '../utils';
-import stripAnsi = require('strip-ansi');
+import { Taskfile, Task } from '../models/taskfile.js';
+import { OutputTo, TerminalClose, TerminalPer, TreeSort, settings } from '../utils/settings.js';
+import { log } from '../utils/log.js';
+import stripAnsi from 'strip-ansi';
 
 const octokit = new Octokit();
 type ReleaseRequest = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["parameters"];
@@ -64,8 +65,11 @@ class TaskfileService {
         }
         return await new Promise((resolve) => {
             let command = this.command('--version');
-            cp.exec(command, (_, stdout: string, stderr: string) => {
+            // Determine the root of the working directory of the project
+            let workspaceFolders = vscode.workspace.workspaceFolders;
+            let cwd = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri.fsPath : undefined;
 
+            cp.exec(command, { cwd }, (_, stdout: string, stderr: string) => {
                 // If the version is a devel version, ignore all version checks
                 if (stdout.includes("devel")) {
                     log.info("Using development version of task");
@@ -171,7 +175,7 @@ class TaskfileService {
         }
     }
 
-    public async read(dir: string): Promise<models.Taskfile | undefined> {
+    public async read(dir: string): Promise<Taskfile | undefined> {
         log.info(`Searching for taskfile in: "${dir}"`);
         return await new Promise((resolve, reject) => {
             let additionalFlags = "";
@@ -203,7 +207,7 @@ class TaskfileService {
                     }
                     return resolve(undefined);
                 }
-                var taskfile: models.Taskfile = JSON.parse(stdout);
+                var taskfile: Taskfile = JSON.parse(stdout);
                 if (path.dirname(taskfile.location) !== dir) {
                     log.info(`Ignoring taskfile: "${taskfile.location}" (outside of workspace)`);
                     return reject();
@@ -281,7 +285,7 @@ class TaskfileService {
         }
     }
 
-    public async goToDefinition(task: models.Task, preview: boolean = false): Promise<void> {
+    public async goToDefinition(task: Task, preview: boolean = false): Promise<void> {
         log.info(`Navigating to "${task.name}" definition in: "${task.location.taskfile}"`);
 
         let position = new vscode.Position(task.location.line - 1, task.location.column - 1);
@@ -305,4 +309,4 @@ class TaskfileService {
     }
 }
 
-export const taskfile = TaskfileService.instance;
+export const taskfileSvc = TaskfileService.instance;

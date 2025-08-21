@@ -1,26 +1,28 @@
 import * as vscode from 'vscode';
-import * as elements from './elements';
-import * as models from './models';
-import * as services from './services';
-import { log, settings } from './utils';
-import { UpdateOn } from './utils/settings';
+import { QuickPickTaskItem, QuickPickTaskSeparator } from './elements/quickPickItem.js';
+import { TaskTreeItem } from './elements/treeItem.js';
+import { ActivityBar } from './elements/activityBar.js';
+import { Taskfile, Task } from './models/taskfile.js';
+import { taskfileSvc } from './services/taskfile.js';
+import { log } from './utils/log.js';
+import { settings, UpdateOn } from './utils/settings.js';
 
 export class TaskExtension {
-    private _taskfiles: models.Taskfile[] = [];
-    private _activityBar: elements.ActivityBar;
+    private _taskfiles: Taskfile[] = [];
+    private _activityBar: ActivityBar;
     private _watcher: vscode.FileSystemWatcher;
     private _changeTimeout: NodeJS.Timeout | null = null;
 
     constructor() {
-        this._activityBar = new elements.ActivityBar();
+        this._activityBar = new ActivityBar();
         this._watcher = vscode.workspace.createFileSystemWatcher("**/*.{yml,yaml}");
         this.setTreeNesting(settings.tree.nesting);
     }
 
     public async update(checkForUpdates?: boolean): Promise<void> {
         // Do version checks
-        await services.taskfile.checkInstallation(checkForUpdates).then(
-            (status): Promise<PromiseSettledResult<models.Taskfile | undefined>[]> => {
+        await taskfileSvc.checkInstallation(checkForUpdates).then(
+            (status): Promise<PromiseSettledResult<Taskfile | undefined>[]> => {
 
                 // Set the status
                 vscode.commands.executeCommand('setContext', 'vscode-task:status', status);
@@ -31,9 +33,9 @@ export class TaskExtension {
                 }
 
                 // Read taskfiles
-                let p: Promise<models.Taskfile | undefined>[] = [];
+                let p: Promise<Taskfile | undefined>[] = [];
                 vscode.workspace.workspaceFolders?.forEach((folder) => {
-                    p.push(services.taskfile.read(folder.uri.fsPath));
+                    p.push(taskfileSvc.read(folder.uri.fsPath));
                 });
 
                 return Promise.allSettled(p);
@@ -78,7 +80,7 @@ export class TaskExtension {
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.init', () => {
             log.info("Command: vscode-task.init");
             if (vscode.workspace.workspaceFolders?.length === 1) {
-                services.taskfile.init(vscode.workspace.workspaceFolders[0].uri.fsPath);
+                taskfileSvc.init(vscode.workspace.workspaceFolders[0].uri.fsPath);
                 return;
             }
             let items: vscode.QuickPickItem[] = [];
@@ -90,7 +92,7 @@ export class TaskExtension {
             });
             vscode.window.showQuickPick(items).then((item) => {
                 if (item) {
-                    services.taskfile.init(item.description || "");
+                    taskfileSvc.init(item.description || "");
                 }
             });
         }));
@@ -114,15 +116,15 @@ export class TaskExtension {
         }));
 
         // Run task
-        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTask', (treeItem?: elements.TaskTreeItem) => {
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTask', (treeItem?: TaskTreeItem) => {
             log.info("Command: vscode-task.runTask");
             if (treeItem?.task) {
-                services.taskfile.runTask(treeItem.task.name, treeItem.workspace);
+                taskfileSvc.runTask(treeItem.task.name, treeItem.workspace);
             }
         }));
 
         // Run task with args
-        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTaskWithArgs', (treeItem?: elements.TaskTreeItem) => {
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTaskWithArgs', (treeItem?: TaskTreeItem) => {
             log.info("vscode-task.runTaskWithArgs");
             if (treeItem?.task) {
                 vscode.window.showInputBox({
@@ -133,7 +135,7 @@ export class TaskExtension {
                         vscode.window.showInformationMessage('No Args Supplied');
                         return;
                     }
-                    services.taskfile.runTask(treeItem.task.name, treeItem.workspace, cliArgsInput);
+                    taskfileSvc.runTask(treeItem.task.name, treeItem.workspace, cliArgsInput);
                 });
             }
         }));
@@ -149,8 +151,8 @@ export class TaskExtension {
             }
 
             vscode.window.showQuickPick(items).then((item) => {
-                if (item && item instanceof elements.QuickPickTaskItem) {
-                    services.taskfile.runTask(item.label, item.taskfile.workspace);
+                if (item && item instanceof QuickPickTaskItem) {
+                    taskfileSvc.runTask(item.label, item.taskfile.workspace);
                 }
             });
         }));
@@ -174,8 +176,8 @@ export class TaskExtension {
                         vscode.window.showInformationMessage('No Args Supplied');
                         return;
                     }
-                    if (item && item instanceof elements.QuickPickTaskItem) {
-                        services.taskfile.runTask(item.label, item.taskfile.workspace, cliArgsInput);
+                    if (item && item instanceof QuickPickTaskItem) {
+                        taskfileSvc.runTask(item.label, item.taskfile.workspace, cliArgsInput);
                     }
                 });
             });
@@ -184,19 +186,19 @@ export class TaskExtension {
         // Run last task
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runLastTask', () => {
             log.info("Command: vscode-task.runLastTask");
-            services.taskfile.runLastTask();
+            taskfileSvc.runLastTask();
         }));
 
         // Go to definition
-        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinition', (task: elements.TaskTreeItem | models.Task, preview: boolean = false) => {
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinition', (task: TaskTreeItem | Task, preview: boolean = false) => {
             log.info("Command: vscode-task.goToDefinition");
-            if (task instanceof elements.TaskTreeItem) {
+            if (task instanceof TaskTreeItem) {
                 if (task.task === undefined) {
                     return;
                 }
                 task = task.task;
             }
-            services.taskfile.goToDefinition(task, preview);
+            taskfileSvc.goToDefinition(task, preview);
         }));
 
         // Go to definition picker
@@ -205,9 +207,9 @@ export class TaskExtension {
             let items: vscode.QuickPickItem[] = [];
             this._taskfiles.forEach(taskfile => {
                 if (taskfile.tasks.length > 0) {
-                    items = items.concat(new elements.QuickPickTaskSeparator(taskfile));
+                    items = items.concat(new QuickPickTaskSeparator(taskfile));
                     taskfile.tasks.forEach(task => {
-                        items = items.concat(new elements.QuickPickTaskItem(taskfile, task));
+                        items = items.concat(new QuickPickTaskItem(taskfile, task));
                     });
                 }
             });
@@ -216,8 +218,8 @@ export class TaskExtension {
                 return;
             }
             vscode.window.showQuickPick(items).then((item) => {
-                if (item && item instanceof elements.QuickPickTaskItem) {
-                    services.taskfile.goToDefinition(item.task);
+                if (item && item instanceof QuickPickTaskItem) {
+                    taskfileSvc.goToDefinition(item.task);
                 }
             });
         }));
@@ -254,9 +256,9 @@ export class TaskExtension {
         let items: vscode.QuickPickItem[] = [];
         this._taskfiles.forEach(taskfile => {
             if (taskfile.tasks.length > 0) {
-                items = items.concat(new elements.QuickPickTaskSeparator(taskfile));
+                items = items.concat(new QuickPickTaskSeparator(taskfile));
                 taskfile.tasks.forEach(task => {
-                    items = items.concat(new elements.QuickPickTaskItem(taskfile, task));
+                    items = items.concat(new QuickPickTaskItem(taskfile, task));
                 });
             }
         });

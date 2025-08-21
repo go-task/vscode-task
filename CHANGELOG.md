@@ -7,6 +7,9 @@
 - Added `terminal.close` setting to control if the existing terminal should
   close before running another task (by @pd93).
 - General improvements to how terminals are handled (by @pd93).
+- Updated extension to use ESM and pnpm (#205 by @pd93).
+- Fixed task discovery when installed in a project using asdf (#181 by
+  @joerocklin).
 
 ## v0.3.2 - 2023-11-20
 
