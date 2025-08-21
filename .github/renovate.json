@@ -1,0 +1,21 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "group:allNonMajor",
+    "schedule:weekly",
+    ":semanticCommitTypeAll(chore)"
+  ],
+  "mode": "full",
+  "addLabels": ["area: dependencies"],
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "addLabels": ["area: github actions"]
+    },
+    {
+      "matchCategories": ["js", "node"],
+      "addLabels": ["lang: javascript"]
+    }
+  ]
+}
