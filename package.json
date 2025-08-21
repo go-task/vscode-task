@@ -300,7 +300,7 @@
               "default": true,
               "description": "Check if there is a newer version of Task on startup."
             },
-            "doubleClickToRun": {
+            "doubleClickTimeout": {
               "type": "number",
               "default": 500,
               "description": "The double-click timeout for a task in the tree view. To disable double-click to run, set this to 0."
