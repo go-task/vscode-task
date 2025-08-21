@@ -37,11 +37,12 @@
 
 ## Configuration
 
-| Setting           | Type      | Allowed Values                    | Default     | Description                                                                                                                                   |
-| ----------------- | --------- | --------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `updateOn`        | `string`  | `"manual"`, `"save"`              | `"save"`    | When the list of tasks should be updated.                                                                                                     |
-| `path`            | `string`  |                                   | `"task"`    | Path to the Task binary. Can also the name of a binary in your `$PATH`. If Task is installed via Snap, set this to `/snap/task/current/task`. |
-| `outputTo`        | `string`  | `"output"`, `"terminal"`          | `"output"`  | Where to print the output of tasks. Note that the output panel does not support ANSI colors.                                                  |
-| `checkForUpdates` | `boolean` |                                   | `true`      | Check if there is a newer version of Task on startup.                                                                                         |
-| `tree.nesting`    | `boolean` |                                   | `true`      | Whether to nest tasks by their namespace in the tree view.                                                                                    |
-| `tree.sort`       | `sort`    | `default`, `alphanumeric`, `none` | `"default"` | The order in which to display tasks in the tree view.                                                                                         |
+| Setting              | Type      | Allowed Values                    | Default     | Description                                                                                                                                   |
+| -------------------- | --------- | --------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `updateOn`           | `string`  | `"manual"`, `"save"`              | `"save"`    | When the list of tasks should be updated.                                                                                                     |
+| `path`               | `string`  |                                   | `"task"`    | Path to the Task binary. Can also the name of a binary in your `$PATH`. If Task is installed via Snap, set this to `/snap/task/current/task`. |
+| `outputTo`           | `string`  | `"output"`, `"terminal"`          | `"output"`  | Where to print the output of tasks. Note that the output panel does not support ANSI colors.                                                  |
+| `checkForUpdates`    | `boolean` |                                   | `true`      | Check if there is a newer version of Task on startup.                                                                                         |
+| `doubleClickTimeout` | `number`  |                                   | `500`       | Time in milliseconds to consider a double-click. A value of 0 will disable double-clicking.                                                   |
+| `tree.nesting`       | `boolean` |                                   | `true`      | Whether to nest tasks by their namespace in the tree view.                                                                                    |
+| `tree.sort`          | `sort`    | `default`, `alphanumeric`, `none` | `"default"` | The order in which to display tasks in the tree view.                                                                                         |

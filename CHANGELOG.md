@@ -12,6 +12,11 @@
   @joerocklin).
 - Run last command now remembers `.CLI_ARGS` and works when output is set to the
   terminal (#168 by @kema-dev and @pd93).
+- Added support for double-clicking tasks from the tree view to run them (#127,
+  #129 by @pd93).
+  - Configurable via `task.doubleClickTimeout` setting measured in milliseconds.
+    - Defaults to `500`.
+    - `0` will disable double-click.
 
 ## v0.3.2 - 2023-11-20
 
