@@ -364,7 +364,7 @@
     "vscode:prepublish": "pnpm run bundle"
   },
   "devDependencies": {
-    "@types/glob": "8.1.0",
+    "@types/glob": "9.0.0",
     "@types/mocha": "10.0.10",
     "@types/node": "24.3.0",
     "@types/semver": "^7.7.0",
