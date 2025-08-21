@@ -10,6 +10,8 @@
 - Updated extension to use ESM and pnpm (#205 by @pd93).
 - Fixed task discovery when installed in a project using asdf (#181 by
   @joerocklin).
+- Run last command now remembers `.CLI_ARGS` and works when output is set to the
+  terminal (#168 by @kema-dev and @pd93).
 
 ## v0.3.2 - 2023-11-20
 
