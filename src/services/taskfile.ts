@@ -296,7 +296,7 @@ class TaskfileService {
 		const currentTime = Date.now();
 		const doubleClicked = this.previousSelection !== undefined && this.previousSelectionTimestamp !== undefined
 			&& this.previousSelection === task.name
-			&& (currentTime - this.previousSelectionTimestamp) < settings.doubleClickToRun;
+			&& (currentTime - this.previousSelectionTimestamp) < settings.doubleClickTimeout;
         if (doubleClicked) {
             this.previousSelection = undefined;
             this.previousSelectionTimestamp = undefined;

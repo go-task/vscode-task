@@ -7,7 +7,7 @@ class Settings {
     public path!: string;
     public outputTo!: OutputTo;
     public checkForUpdates!: boolean;
-    public doubleClickToRun!: number;
+    public doubleClickTimeout!: number;
     public tree!: TreeSettings;
     public terminal!: TerminalSettings;
 
@@ -31,7 +31,7 @@ class Settings {
         this.path = config.get("path") ?? "task";
         this.outputTo = config.get("outputTo") ?? OutputTo.output;
         this.checkForUpdates = config.get("checkForUpdates") ?? true;
-        this.doubleClickToRun = config.get("doubleClickToRun") ?? 500;
+        this.doubleClickTimeout = config.get("doubleClickTimeout") ?? 500;
         this.tree = new TreeSettings();
         this.terminal = new TerminalSettings();
     }
