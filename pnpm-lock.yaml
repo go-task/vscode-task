@@ -30,9 +30,6 @@ importers:
       '@types/semver':
         specifier: ^7.7.0
         version: 7.7.0
-      '@types/strip-ansi':
-        specifier: 3.0.0
-        version: 3.0.0
       '@types/vscode':
         specifier: 1.100.0
         version: 1.100.0
@@ -689,9 +686,6 @@ packages:
 
   '@types/semver@7.7.0':
     resolution: {integrity: sha512-k107IF4+Xr7UHjwDc7Cfd6PRQfbdkiRabXGRjo07b4WyPahFBZCZ1sE+BNxYIJPPg73UkfOsVOLwqVc/6ETrIA==}
-
-  '@types/strip-ansi@3.0.0':
-    resolution: {integrity: sha512-wVhzc+WJ/JNdV25MeaK0skxGdbdOFeqYv1sqY8yPXbsshZ0XwSbWWwfKzj836cPW+e+PpqUNvKoiac9ZqCdyRQ==}
 
   '@types/vscode@1.100.0':
     resolution: {integrity: sha512-4uNyvzHoraXEeCamR3+fzcBlh7Afs4Ifjs4epINyUX/jvdk0uzLnwiDY35UKDKnkCHP5Nu3dljl2H8lR6s+rQw==}
@@ -2937,8 +2931,6 @@ snapshots:
   '@types/sarif@2.1.7': {}
 
   '@types/semver@7.7.0': {}
-
-  '@types/strip-ansi@3.0.0': {}
 
   '@types/vscode@1.100.0': {}
 
