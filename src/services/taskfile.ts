@@ -40,6 +40,8 @@ class TaskfileService {
     private lastTaskDir: string | undefined;
     private lastTaskCliArgs: string | undefined;
     private version: semver.SemVer | undefined;
+	private previousSelection: string | undefined;
+	private previousSelectionTimestamp: number | undefined;
 
     private constructor() {
         TaskfileService.outputChannel = vscode.window.createOutputChannel('Task');
@@ -291,6 +293,16 @@ class TaskfileService {
     }
 
     public async goToDefinition(task: Task, preview: boolean = false): Promise<void> {
+		const currentTime = Date.now();
+		const doubleClicked = this.previousSelection !== undefined && this.previousSelectionTimestamp !== undefined
+			&& this.previousSelection === task.name
+			&& (currentTime - this.previousSelectionTimestamp) < settings.doubleClickToRun;
+        if (doubleClicked) {
+            this.previousSelection = undefined;
+            this.previousSelectionTimestamp = undefined;
+            return this.runTask(task.name);
+        }
+
         log.info(`Navigating to "${task.name}" definition in: "${task.location.taskfile}"`);
 
         let position = new vscode.Position(task.location.line - 1, task.location.column - 1);
@@ -311,6 +323,9 @@ class TaskfileService {
         } catch (err) {
             log.error(err);
         }
+
+        this.previousSelection = task.name;
+        this.previousSelectionTimestamp = currentTime;
     }
 }
 
