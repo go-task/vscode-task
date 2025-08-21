@@ -15,10 +15,8 @@ export default defineConfig([globalIgnores(["**/out", "**/dist", "**/*.d.ts"]), 
 
     rules: {
         "@typescript-eslint/naming-convention": "warn",
-        "@typescript-eslint/semi": "warn",
         curly: "warn",
         eqeqeq: "warn",
-        "no-throw-literal": "warn",
-        semi: 2,
+        "no-throw-literal": "warn"
     },
 }]);
