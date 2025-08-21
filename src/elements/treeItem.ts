@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as models from '../models';
+import { Task } from '../models/taskfile.js';
 
 export type TreeItem = WorkspaceTreeItem | NamespaceTreeItem | TaskTreeItem;
 
@@ -7,7 +7,7 @@ export class WorkspaceTreeItem extends vscode.TreeItem {
     constructor(
         readonly label: string,
         readonly workspace: string,
-        readonly tasks: models.Task[],
+        readonly tasks: Task[],
         readonly collapsibleState: vscode.TreeItemCollapsibleState,
         readonly command?: vscode.Command
     ) {
@@ -23,7 +23,7 @@ export class NamespaceTreeItem extends vscode.TreeItem {
         readonly label: string,
         readonly workspace: string,
         readonly namespaceMap: any,
-        readonly tasks: models.Task[],
+        readonly tasks: Task[],
         readonly collapsibleState: vscode.TreeItemCollapsibleState,
         readonly command?: vscode.Command
     ) {
@@ -37,7 +37,7 @@ export class TaskTreeItem extends vscode.TreeItem {
     constructor(
         readonly label: string,
         readonly workspace: string,
-        readonly task: models.Task,
+        readonly task: Task,
         readonly collapsibleState: vscode.TreeItemCollapsibleState,
         readonly command?: vscode.Command
     ) {

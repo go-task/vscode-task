@@ -27,8 +27,14 @@
     "go-task",
     "taskfile"
   ],
+  "type": "module",
   "engines": {
-    "vscode": "^1.76.0"
+    "vscode": "^1.100.0",
+    "node": ">=22"
+  },
+  "vsce": {
+    "dependencies": false,
+    "useYarn": false
   },
   "categories": [
     "Other"
@@ -344,38 +350,39 @@
     }
   },
   "scripts": {
-    "bundle": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node --minify",
+    "bundle": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=esm --platform=node --minify",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "pretest": "yarn run compile && yarn run lint",
     "lint": "eslint src --ext ts",
     "test": "vscode-test",
-    "package": "vsce package --yarn",
-    "publish:vsce": "vsce publish --yarn",
-    "publish:ovsx": "ovsx publish --yarn",
+    "package": "vsce package",
+    "publish:vsce": "vsce publish",
+    "publish:ovsx": "ovsx publish",
     "vscode:prepublish": "yarn run bundle"
   },
   "devDependencies": {
     "@types/glob": "8.1.0",
-    "@types/mocha": "10.0.6",
-    "@types/node": "20.x",
+    "@types/mocha": "10.0.10",
+    "@types/node": "24.3.0",
+    "@types/semver": "^7.7.0",
     "@types/strip-ansi": "3.0.0",
-    "@types/vscode": "1.76.0",
-    "@typescript-eslint/eslint-plugin": "7.5.0",
-    "@typescript-eslint/parser": "7.5.0",
-    "@vscode/test-cli": "^0.0.8",
-    "@vscode/test-electron": "2.3.9",
-    "@vscode/vsce": "2.24.0",
-    "esbuild": "0.20.2",
-    "eslint": "8.57.0",
-    "mocha": "10.4.0",
-    "ovsx": "0.9.0",
-    "typescript": "5.4.4"
+    "@types/vscode": "1.100.0",
+    "@typescript-eslint/eslint-plugin": "8.40.0",
+    "@typescript-eslint/parser": "8.40.0",
+    "@vscode/test-cli": "0.0.11",
+    "@vscode/test-electron": "2.5.2",
+    "@vscode/vsce": "3.6.0",
+    "esbuild": "0.25.9",
+    "eslint": "9.33.0",
+    "mocha": "11.7.1",
+    "ovsx": "0.10.5",
+    "typescript": "5.9.2"
   },
   "dependencies": {
-    "@octokit/types": "13.1.0",
-    "octokit": "3.2.0",
-    "semver": "7.6.0",
-    "strip-ansi": "6.0.1"
+    "@octokit/types": "14.1.0",
+    "octokit": "5.0.3",
+    "semver": "7.7.2",
+    "strip-ansi": "7.1.0"
   }
 }
