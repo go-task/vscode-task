@@ -379,7 +379,7 @@
     "@vscode/test-electron": "2.5.2",
     "@vscode/vsce": "3.6.0",
     "esbuild": "0.25.9",
-    "eslint": "9.33.0",
+    "eslint": "9.34.0",
     "mocha": "11.7.1",
     "ovsx": "0.10.5",
     "typescript": "5.9.2"
