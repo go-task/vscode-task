@@ -13,11 +13,13 @@ export class TaskExtension {
     private _watcher: vscode.FileSystemWatcher;
     private _changeTimeout: NodeJS.Timeout | null = null;
     private _nesting: boolean;
+    private _status: boolean;
 
     constructor() {
         this._activityBar = new ActivityBar();
         this._watcher = vscode.workspace.createFileSystemWatcher("**/*.{yml,yaml}");
         this._nesting = settings.tree.nesting;
+        this._status = settings.tree.status;
     }
 
     public async update(checkForUpdates?: boolean): Promise<void> {
@@ -36,7 +38,7 @@ export class TaskExtension {
                 // Read taskfiles
                 let p: Promise<Namespace | undefined>[] = [];
                 vscode.workspace.workspaceFolders?.forEach((folder) => {
-                    p.push(taskfileSvc.read(folder.uri.fsPath, this._nesting));
+                    p.push(taskfileSvc.read(folder.uri.fsPath, this._nesting, this._status));
                 });
 
                 return Promise.allSettled(p);
@@ -288,6 +290,10 @@ export class TaskExtension {
         log.info("Detected changes to configuration");
         if (event.affectsConfiguration("task")) {
             settings.update();
+            this._nesting = settings.tree.nesting;
+            this._status = settings.tree.status;
+            this.refresh(false);
+            vscode.commands.executeCommand('setContext', 'vscode-task:treeNesting', this._nesting);
         }
     }
 }

@@ -12,7 +12,7 @@ export interface Task {
     desc: string;
     summary: string;
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    up_to_date: boolean;
+    up_to_date: boolean | undefined;
     location: Location;
 }
 

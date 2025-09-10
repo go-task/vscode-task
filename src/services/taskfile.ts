@@ -177,7 +177,7 @@ class TaskfileService {
         }
     }
 
-    public async read(dir: string, nesting: boolean): Promise<Namespace | undefined> {
+    public async read(dir: string, nesting: boolean, status: boolean): Promise<Namespace | undefined> {
         log.info(`Searching for taskfile in: "${dir}"`);
         return await new Promise((resolve, reject) => {
             let flags = [
@@ -190,6 +190,9 @@ class TaskfileService {
             }
             if (nesting) {
                 flags.push(`--nested`);
+            }
+            if (!status) {
+                flags.push(`--no-status`);
             }
             let command = this.command(`${flags.join(' ')}`);
             cp.exec(command, { cwd: dir }, (err: cp.ExecException | null, stdout: string, stderr: string) => {

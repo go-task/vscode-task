@@ -42,10 +42,15 @@ export class TaskTreeItem extends vscode.TreeItem {
     ) {
         super(label, collapsibleState);
         this.description = this.task?.desc;
-        if (this.task.up_to_date) {
-            this.iconPath = new vscode.ThemeIcon('debug-breakpoint-log-unverified', new vscode.ThemeColor('vscodetask.upToDateIcon'));
-        } else {
-            this.iconPath = new vscode.ThemeIcon('debug-breakpoint-data-unverified', new vscode.ThemeColor('vscodetask.outOfDateIcon'));
+        switch (this.task.up_to_date) {
+            case true:
+                this.iconPath = new vscode.ThemeIcon('debug-breakpoint-data-unverified', new vscode.ThemeColor('vscodetask.upToDateIcon'));
+                break;
+            case false:
+                this.iconPath = new vscode.ThemeIcon('debug-breakpoint-data-unverified', new vscode.ThemeColor('vscodetask.outOfDateIcon'));
+                break;
+            default:
+                this.iconPath = new vscode.ThemeIcon('debug-breakpoint-data-unverified', new vscode.ThemeColor('vscodetask.primaryColor'));
         }
         this.contextValue = `taskTreeItem`;
     }
