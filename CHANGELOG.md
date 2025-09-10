@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Disabled double-click to run by default (by @pd93).
+  - This was done to prevent running Tasks accidentally and because double-click
+    conflicts with the default VSCode action of opening a Task definition with
+    preview disabled.
+  - It can be re-enabled by setting `task.doubleClickTimeout` to a value greater
+    than `0` (e.g. `500`) (by @pd93).
+
 ## v0.4.0 - 2025-08-21
 
 - Added `terminal.per` setting to allow a new terminal per task (#125, #126 by
