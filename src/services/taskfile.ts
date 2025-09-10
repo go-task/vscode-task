@@ -180,15 +180,18 @@ class TaskfileService {
     public async read(dir: string, nesting: boolean): Promise<Namespace | undefined> {
         log.info(`Searching for taskfile in: "${dir}"`);
         return await new Promise((resolve, reject) => {
-            let additionalFlags = "";
-            // Sorting
+            let flags = [
+                "--list-all",
+                "--json"
+            ];
+            // Optional flags
             if (settings.tree.sort !== TreeSort.default) {
-                additionalFlags = ` --sort ${settings.tree.sort}`;
+                flags.push(`--sort ${settings.tree.sort}`);
             }
             if (nesting) {
-                additionalFlags = ` --nested`;
+                flags.push(`--nested`);
             }
-            let command = this.command(`--list-all --json${additionalFlags}`);
+            let command = this.command(`${flags.join(' ')}`);
             cp.exec(command, { cwd: dir }, (err: cp.ExecException | null, stdout: string, stderr: string) => {
                 if (err) {
                     log.error(err);
