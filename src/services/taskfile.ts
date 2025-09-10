@@ -5,7 +5,7 @@ import { Octokit } from 'octokit';
 import * as path from 'path';
 import * as semver from 'semver';
 import * as vscode from 'vscode';
-import { Taskfile, Task } from '../models/taskfile.js';
+import { Namespace, Task } from '../models/models.js';
 import { OutputTo, TerminalClose, TerminalPer, TreeSort, settings } from '../utils/settings.js';
 import { log } from '../utils/log.js';
 import stripAnsi from 'strip-ansi';
@@ -177,13 +177,16 @@ class TaskfileService {
         }
     }
 
-    public async read(dir: string): Promise<Taskfile | undefined> {
+    public async read(dir: string, nesting: boolean): Promise<Namespace | undefined> {
         log.info(`Searching for taskfile in: "${dir}"`);
         return await new Promise((resolve, reject) => {
             let additionalFlags = "";
             // Sorting
             if (settings.tree.sort !== TreeSort.default) {
                 additionalFlags = ` --sort ${settings.tree.sort}`;
+            }
+            if (nesting) {
+                additionalFlags = ` --nested`;
             }
             let command = this.command(`--list-all --json${additionalFlags}`);
             cp.exec(command, { cwd: dir }, (err: cp.ExecException | null, stdout: string, stderr: string) => {
@@ -209,7 +212,7 @@ class TaskfileService {
                     }
                     return resolve(undefined);
                 }
-                var taskfile: Taskfile = JSON.parse(stdout);
+                var taskfile: Namespace = JSON.parse(stdout);
                 if (path.dirname(taskfile.location) !== dir) {
                     log.info(`Ignoring taskfile: "${taskfile.location}" (outside of workspace)`);
                     return reject();

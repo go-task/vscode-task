@@ -1,15 +1,15 @@
 import * as vscode from 'vscode';
-import { Taskfile, Task } from '../models/taskfile.js';
+import { Namespace, Task } from '../models/models.js';
 
 export class QuickPickTaskItem implements vscode.QuickPickItem {
-    constructor(taskfile: Taskfile, task: Task) {
-        this.taskfile = taskfile;
+    constructor(namespace: Namespace, task: Task) {
+        this.namespace = namespace;
         this.task = task;
         this.label = task.name;
         this.description = task.desc;
         this.kind = vscode.QuickPickItemKind.Default;
     }
-    taskfile: Taskfile;
+    namespace: Namespace;
     task: Task;
     label: string;
     description: string;
@@ -17,8 +17,8 @@ export class QuickPickTaskItem implements vscode.QuickPickItem {
 }
 
 export class QuickPickTaskSeparator implements vscode.QuickPickItem {
-    constructor(taskfile: Taskfile) {
-        this.label = taskfile.location;
+    constructor(namespace: Namespace) {
+        this.label = namespace.location;
         this.kind = vscode.QuickPickItemKind.Separator;
     }
     label: string;
