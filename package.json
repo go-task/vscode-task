@@ -302,8 +302,8 @@
             },
             "doubleClickTimeout": {
               "type": "number",
-              "default": 500,
-              "description": "The double-click timeout for a task in the tree view. To disable double-click to run, set this to 0."
+              "default": 0,
+              "description": "The double-click timeout for a task in the tree view. 0 disables double-click to run. 500 is a good starting point if you want to enable it."
             },
             "tree": {
               "type": "object",
