@@ -73,7 +73,7 @@ class TaskfileService {
 
             cp.exec(command, { cwd }, (_, stdout: string, stderr: string) => {
                 // If the version is a devel version, ignore all version checks
-                if (stdout.includes("devel")) {
+                if (stdout.includes("+")) {
                     log.info("Using development version of task");
                     this.version = new semver.SemVer("999.0.0");
                     return resolve("ready");
