@@ -1,9 +1,6 @@
-export type TaskMapping = {
-    [key: string]: TaskMapping | null;
-};
-
-export interface Taskfile {
+export interface Namespace {
     tasks: Task[];
+    namespaces: Map<string, Namespace>;
     location: string; // The location of the actual Taskfile
     // The vscode workspace directory where the command was executed to find this taskfile
     // This is where tasks in this taskfile will be executed from.
@@ -15,7 +12,7 @@ export interface Task {
     desc: string;
     summary: string;
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    up_to_date: boolean;
+    up_to_date: boolean | undefined;
     location: Location;
 }
 
