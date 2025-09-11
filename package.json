@@ -368,7 +368,36 @@
           }
         }
       }
-    }
+    },
+    "taskDefinitions": [
+      {
+        "type": "taskfile",
+        "required": [
+          "task"
+        ],
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "The task to run."
+          },
+          "file": {
+            "type": "string",
+            "description": "The task file to run."
+          },
+          "workspace": {
+            "type": "string",
+            "description": "The workspace folder containing the task file."
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Additional arguments to pass to the task."
+          }
+        }
+      }
+    ]
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",

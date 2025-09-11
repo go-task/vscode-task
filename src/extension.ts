@@ -9,6 +9,7 @@ export function activate(context: vscode.ExtensionContext) {
 	let taskExtension: TaskExtension = new TaskExtension();
 
 	// Registration
+	taskExtension.registerTaskProvider(context);
 	taskExtension.registerCommands(context);
 	taskExtension.registerListeners(context);
 

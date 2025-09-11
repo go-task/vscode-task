@@ -3,6 +3,7 @@ import { QuickPickTaskItem, QuickPickTaskSeparator } from './elements/quickPickI
 import { TaskTreeItem } from './elements/treeItem.js';
 import { ActivityBar } from './elements/activityBar.js';
 import { Namespace, Task } from './models/models.js';
+import { TaskProvider } from './providers/taskProvider.js';
 import { taskfileSvc } from './services/taskfile.js';
 import { log } from './utils/log.js';
 import { configKey, oldConfigKey, settings, UpdateOn } from './utils/settings.js';
@@ -12,6 +13,7 @@ export class TaskExtension {
     private _activityBar: ActivityBar;
     private _watcher: vscode.FileSystemWatcher;
     private _changeTimeout: NodeJS.Timeout | null = null;
+    private _taskProvider: TaskProvider | undefined;
     private _nesting: boolean;
     private _status: boolean;
 
@@ -66,6 +68,9 @@ export class TaskExtension {
     public async refresh(checkForUpdates?: boolean): Promise<void> {
         await this.update(checkForUpdates).then(() => {
             this._activityBar.refresh(this._taskfiles, this._nesting);
+            if (this._taskProvider) {
+                this._taskProvider.setTaskfiles(this._taskfiles);
+            }
         }).catch((err: string) => {
             log.error(err);
         });
@@ -75,6 +80,12 @@ export class TaskExtension {
         this._nesting = enabled;
         this.refresh();
         vscode.commands.executeCommand('setContext', 'vscode-task:treeNesting', enabled);
+    }
+
+    public registerTaskProvider(context: vscode.ExtensionContext): void {
+        console.log("Registering task provider");
+        this._taskProvider = new TaskProvider();
+        context.subscriptions.push(vscode.tasks.registerTaskProvider('taskfile', this._taskProvider));
     }
 
     public registerCommands(context: vscode.ExtensionContext): void {
