@@ -20,6 +20,7 @@ export class TaskExtension {
         this._watcher = vscode.workspace.createFileSystemWatcher("**/*.{yml,yaml}");
         this._nesting = settings.tree.nesting;
         this._status = settings.tree.status;
+        vscode.commands.executeCommand('setContext', 'vscode-task:treeNesting', this._nesting);
     }
 
     public async update(checkForUpdates?: boolean): Promise<void> {
