@@ -4,6 +4,7 @@ import { Namespace, Task } from '../models/models.js';
 export type TreeItem = WorkspaceTreeItem | NamespaceTreeItem | TaskTreeItem;
 
 export class WorkspaceTreeItem extends vscode.TreeItem {
+    private static readonly icon = 'folder';
     constructor(
         readonly label: string,
         readonly workspace: string,
@@ -13,12 +14,16 @@ export class WorkspaceTreeItem extends vscode.TreeItem {
     ) {
         super(label, collapsibleState);
         this.description = this.workspace;
-        this.iconPath = new vscode.ThemeIcon('folder', new vscode.ThemeColor('vscodetask.workspaceIcon'));
+        this.iconPath = new vscode.ThemeIcon(
+            WorkspaceTreeItem.icon,
+            new vscode.ThemeColor('vscodetask.workspaceIcon')
+        );
         this.contextValue = `workspaceTreeItem`;
     }
 }
 
 export class NamespaceTreeItem extends vscode.TreeItem {
+    private static readonly icon = 'symbol-namespace';
     constructor(
         readonly label: string,
         readonly workspace: string,
@@ -27,12 +32,16 @@ export class NamespaceTreeItem extends vscode.TreeItem {
         readonly command?: vscode.Command
     ) {
         super(label, collapsibleState);
-        this.iconPath = new vscode.ThemeIcon('symbol-namespace', new vscode.ThemeColor('vscodetask.namespaceIcon'));
+        this.iconPath = new vscode.ThemeIcon(
+            NamespaceTreeItem.icon,
+            new vscode.ThemeColor('vscodetask.namespaceIcon')
+        );
         this.contextValue = `namespaceTreeItem`;
     }
 }
 
 export class TaskTreeItem extends vscode.TreeItem {
+    private static readonly icon = 'symbol-function';
     constructor(
         readonly label: string,
         readonly workspace: string,
@@ -44,13 +53,22 @@ export class TaskTreeItem extends vscode.TreeItem {
         this.description = this.task?.desc;
         switch (this.task.up_to_date) {
             case true:
-                this.iconPath = new vscode.ThemeIcon('debug-breakpoint-data-unverified', new vscode.ThemeColor('vscodetask.upToDateIcon'));
+                this.iconPath = new vscode.ThemeIcon(
+                    TaskTreeItem.icon,
+                    new vscode.ThemeColor('vscodetask.upToDateIcon')
+                );
                 break;
             case false:
-                this.iconPath = new vscode.ThemeIcon('debug-breakpoint-data-unverified', new vscode.ThemeColor('vscodetask.outOfDateIcon'));
+                this.iconPath = new vscode.ThemeIcon(
+                    TaskTreeItem.icon,
+                    new vscode.ThemeColor('vscodetask.outOfDateIcon')
+                );
                 break;
             default:
-                this.iconPath = new vscode.ThemeIcon('debug-breakpoint-data-unverified', new vscode.ThemeColor('vscodetask.primaryColor'));
+                this.iconPath = new vscode.ThemeIcon(
+                    TaskTreeItem.icon,
+                    new vscode.ThemeColor('vscodetask.primaryColor')
+                );
         }
         this.contextValue = `taskTreeItem`;
     }
