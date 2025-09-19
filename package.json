@@ -263,6 +263,16 @@
           "highContrast": "#ff9b05",
           "highContrastLight": "#ff9b05"
         }
+      },
+      {
+        "id": "vscodetask.primaryColor",
+        "description": "Color for primary elements.",
+        "defaults": {
+          "dark": "#43aba2",
+          "light": "#43aba2",
+          "highContrast": "#43aba2",
+          "highContrastLight": "#43aba2"
+        }
       }
     ],
     "configuration": {
@@ -313,6 +323,11 @@
                   "type": "boolean",
                   "default": true,
                   "description": "Whether to nest tasks by their namespace in the tree view."
+                },
+                "status": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether to show the status of tasks in the tree view (may be slow on large Taskfiles)."
                 },
                 "sort": {
                   "type": "string",

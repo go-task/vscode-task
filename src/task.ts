@@ -2,27 +2,31 @@ import * as vscode from 'vscode';
 import { QuickPickTaskItem, QuickPickTaskSeparator } from './elements/quickPickItem.js';
 import { TaskTreeItem } from './elements/treeItem.js';
 import { ActivityBar } from './elements/activityBar.js';
-import { Taskfile, Task } from './models/taskfile.js';
+import { Namespace, Task } from './models/models.js';
 import { taskfileSvc } from './services/taskfile.js';
 import { log } from './utils/log.js';
 import { settings, UpdateOn } from './utils/settings.js';
 
 export class TaskExtension {
-    private _taskfiles: Taskfile[] = [];
+    private _taskfiles: Namespace[] = [];
     private _activityBar: ActivityBar;
     private _watcher: vscode.FileSystemWatcher;
     private _changeTimeout: NodeJS.Timeout | null = null;
+    private _nesting: boolean;
+    private _status: boolean;
 
     constructor() {
         this._activityBar = new ActivityBar();
         this._watcher = vscode.workspace.createFileSystemWatcher("**/*.{yml,yaml}");
-        this.setTreeNesting(settings.tree.nesting);
+        this._nesting = settings.tree.nesting;
+        this._status = settings.tree.status;
+        vscode.commands.executeCommand('setContext', 'vscode-task:treeNesting', this._nesting);
     }
 
     public async update(checkForUpdates?: boolean): Promise<void> {
         // Do version checks
         await taskfileSvc.checkInstallation(checkForUpdates).then(
-            (status): Promise<PromiseSettledResult<Taskfile | undefined>[]> => {
+            (status): Promise<PromiseSettledResult<Namespace | undefined>[]> => {
 
                 // Set the status
                 vscode.commands.executeCommand('setContext', 'vscode-task:status', status);
@@ -33,9 +37,9 @@ export class TaskExtension {
                 }
 
                 // Read taskfiles
-                let p: Promise<Taskfile | undefined>[] = [];
+                let p: Promise<Namespace | undefined>[] = [];
                 vscode.workspace.workspaceFolders?.forEach((folder) => {
-                    p.push(taskfileSvc.read(folder.uri.fsPath));
+                    p.push(taskfileSvc.read(folder.uri.fsPath, this._nesting, this._status));
                 });
 
                 return Promise.allSettled(p);
@@ -61,14 +65,15 @@ export class TaskExtension {
 
     public async refresh(checkForUpdates?: boolean): Promise<void> {
         await this.update(checkForUpdates).then(() => {
-            this._activityBar.refresh(this._taskfiles);
+            this._activityBar.refresh(this._taskfiles, this._nesting);
         }).catch((err: string) => {
             log.error(err);
         });
     }
 
     public setTreeNesting(enabled: boolean): void {
-        this._activityBar.setTreeNesting(enabled);
+        this._nesting = enabled;
+        this.refresh();
         vscode.commands.executeCommand('setContext', 'vscode-task:treeNesting', enabled);
     }
 
@@ -152,7 +157,7 @@ export class TaskExtension {
 
             vscode.window.showQuickPick(items).then((item) => {
                 if (item && item instanceof QuickPickTaskItem) {
-                    taskfileSvc.runTask(item.label, item.taskfile.workspace);
+                    taskfileSvc.runTask(item.label, item.namespace.workspace);
                 }
             });
         }));
@@ -177,7 +182,7 @@ export class TaskExtension {
                         return;
                     }
                     if (item && item instanceof QuickPickTaskItem) {
-                        taskfileSvc.runTask(item.label, item.taskfile.workspace, cliArgsInput);
+                        taskfileSvc.runTask(item.label, item.namespace.workspace, cliArgsInput);
                     }
                 });
             });
@@ -286,6 +291,10 @@ export class TaskExtension {
         log.info("Detected changes to configuration");
         if (event.affectsConfiguration("task")) {
             settings.update();
+            this._nesting = settings.tree.nesting;
+            this._status = settings.tree.status;
+            this.refresh(false);
+            vscode.commands.executeCommand('setContext', 'vscode-task:treeNesting', this._nesting);
         }
     }
 }

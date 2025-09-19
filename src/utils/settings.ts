@@ -50,6 +50,7 @@ export enum UpdateOn {
 class TreeSettings {
     private static _instance: TreeSettings;
     public nesting!: boolean;
+    public status!: boolean;
     public sort!: TreeSort;
 
     constructor() {
@@ -69,6 +70,7 @@ class TreeSettings {
 
         // Set the properties
         this.nesting = config.get("tree.nesting") ?? true;
+        this.status = config.get("tree.status") ?? false;
         this.sort = config.get("tree.sort") ?? TreeSort.default;
     }
 }

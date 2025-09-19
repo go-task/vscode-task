@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { TaskTreeDataProvider } from '../providers/taskTreeDataProvider.js';
-import { Taskfile } from '../models/taskfile.js';
+import { Namespace } from '../models/models.js';
 
 export class ActivityBar {
     private _provider: TaskTreeDataProvider;
@@ -16,12 +16,7 @@ export class ActivityBar {
         });
     }
 
-    public setTreeNesting(enabled: boolean) {
-        this._provider.setTreeNesting(enabled);
-        this._provider.refresh();
-    }
-
-    public refresh(taskfiles?: Taskfile[]) {
-        this._provider.refresh(taskfiles);
+    public refresh(taskfiles?: Namespace[], nesting?: boolean): void {
+        this._provider.refresh(taskfiles, nesting);
     }
 }

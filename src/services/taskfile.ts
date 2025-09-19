@@ -5,7 +5,7 @@ import { Octokit } from 'octokit';
 import * as path from 'path';
 import * as semver from 'semver';
 import * as vscode from 'vscode';
-import { Taskfile, Task } from '../models/taskfile.js';
+import { Namespace, Task } from '../models/models.js';
 import { OutputTo, TerminalClose, TerminalPer, TreeSort, settings } from '../utils/settings.js';
 import { log } from '../utils/log.js';
 import stripAnsi from 'strip-ansi';
@@ -14,7 +14,7 @@ const octokit = new Octokit();
 type ReleaseRequest = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["parameters"];
 type ReleaseResponse = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["response"];
 
-const minimumRequiredVersion = '3.24.0';
+const minimumRequiredVersion = '3.45.3';
 
 // General exit codes
 const errCodeOK = 0;
@@ -73,7 +73,7 @@ class TaskfileService {
 
             cp.exec(command, { cwd }, (_, stdout: string, stderr: string) => {
                 // If the version is a devel version, ignore all version checks
-                if (stdout.includes("devel")) {
+                if (stdout.includes("+")) {
                     log.info("Using development version of task");
                     this.version = new semver.SemVer("999.0.0");
                     return resolve("ready");
@@ -177,15 +177,24 @@ class TaskfileService {
         }
     }
 
-    public async read(dir: string): Promise<Taskfile | undefined> {
+    public async read(dir: string, nesting: boolean, status: boolean): Promise<Namespace | undefined> {
         log.info(`Searching for taskfile in: "${dir}"`);
         return await new Promise((resolve, reject) => {
-            let additionalFlags = "";
-            // Sorting
+            let flags = [
+                "--list-all",
+                "--json"
+            ];
+            // Optional flags
             if (settings.tree.sort !== TreeSort.default) {
-                additionalFlags = ` --sort ${settings.tree.sort}`;
+                flags.push(`--sort ${settings.tree.sort}`);
             }
-            let command = this.command(`--list-all --json${additionalFlags}`);
+            if (nesting) {
+                flags.push(`--nested`);
+            }
+            if (!status) {
+                flags.push(`--no-status`);
+            }
+            let command = this.command(`${flags.join(' ')}`);
             cp.exec(command, { cwd: dir }, (err: cp.ExecException | null, stdout: string, stderr: string) => {
                 if (err) {
                     log.error(err);
@@ -209,7 +218,7 @@ class TaskfileService {
                     }
                     return resolve(undefined);
                 }
-                var taskfile: Taskfile = JSON.parse(stdout);
+                var taskfile: Namespace = JSON.parse(stdout);
                 if (path.dirname(taskfile.location) !== dir) {
                     log.info(`Ignoring taskfile: "${taskfile.location}" (outside of workspace)`);
                     return reject();

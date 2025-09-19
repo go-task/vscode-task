@@ -45,4 +45,5 @@
 | `checkForUpdates`    | `boolean` |                                   | `true`      | Check if there is a newer version of Task on startup.                                                                                         |
 | `doubleClickTimeout` | `number`  |                                   | `0`         | Time in milliseconds to consider a double-click. 0 disables double-click to run. 500 is a good starting point if you want to enable it.       |
 | `tree.nesting`       | `boolean` |                                   | `true`      | Whether to nest tasks by their namespace in the tree view.                                                                                    |
+| `tree.status`        | `boolean` |                                   | `false`     | Whether to show the status of tasks in the tree view (may be slow on large Taskfiles).                                                        |
 | `tree.sort`          | `sort`    | `default`, `alphanumeric`, `none` | `"default"` | The order in which to display tasks in the tree view.                                                                                         |

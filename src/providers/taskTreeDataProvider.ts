@@ -1,22 +1,22 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { TreeItem, TaskTreeItem, NamespaceTreeItem, WorkspaceTreeItem } from '../elements/treeItem.js';
-import { Taskfile, Task, TaskMapping } from '../models/taskfile.js';
+import { Namespace, Task } from '../models/models.js';
 
 const namespaceSeparator = ':';
 
 export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<TaskTreeItem | undefined> = new vscode.EventEmitter<TaskTreeItem | undefined>();
     readonly onDidChangeTreeData: vscode.Event<TaskTreeItem | undefined> = this._onDidChangeTreeData.event;
-    private _taskfiles?: Taskfile[];
-    private _treeViewMap: TaskMapping = {};
+    private _namespaces?: Namespace[];
+    private _nesting: boolean = false;
 
-    constructor(
-        private nestingEnabled: boolean = false
-    ) { }
-
-    setTreeNesting(enabled: boolean) {
-        this.nestingEnabled = enabled;
+    refresh(namespaces?: Namespace[], nesting?: boolean): void {
+        if (namespaces) {
+            this._namespaces = namespaces;
+        }
+        this._nesting = nesting ?? this._nesting;
+        this._onDidChangeTreeData.fire(undefined);
     }
 
     getTreeItem(element: TreeItem): vscode.TreeItem {
@@ -24,8 +24,6 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     }
 
     getChildren(parent?: TreeItem): Thenable<TreeItem[]> {
-        var treeItems: TreeItem[] = [];
-
         // If there are no workspace folders, return an empty array
         if (vscode.workspace.workspaceFolders === undefined || vscode.workspace.workspaceFolders.length === 0) {
             return Promise.resolve([]);
@@ -38,51 +36,56 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
             return Promise.resolve(workspaces);
         }
 
-        // If there are no taskfiles, return an empty array
-        if (!this._taskfiles || this._taskfiles.length === 0) {
+        // If there are no namespaces, return an empty array
+        if (!this._namespaces || this._namespaces.length === 0) {
             return Promise.resolve([]);
         }
-
-        var tasks: Task[] | undefined;
-        var parentNamespace = "";
-        var namespaceMap = this._treeViewMap;
-        var workspace = "";
 
         // If there is no parent and exactly one workspace folder or if the parent is a workspace
         if (!parent && vscode.workspace.workspaceFolders.length === 1) {
-            tasks = this._taskfiles[0].tasks;
-            workspace = this._taskfiles[0].workspace ?? "";
+            return Promise.resolve(this.createTreeItems(
+                this._namespaces[0].workspace ?? "",
+                this._namespaces[0].namespaces,
+                this._namespaces[0].tasks
+            ));
         }
 
-        // If there is a parent and it is a workspace
-        if (parent instanceof WorkspaceTreeItem) {
-            tasks = parent.tasks;
-            workspace = parent.workspace;
+        // If there is a parent and it is a workspace or namespace
+        if (parent instanceof WorkspaceTreeItem || parent instanceof NamespaceTreeItem) {
+            return Promise.resolve(this.createTreeItems(
+                parent.workspace,
+                parent.namespace.namespaces,
+                parent.namespace.tasks
+            ));
         }
 
-        // If there is a parent and it is a namespace
-        if (parent instanceof NamespaceTreeItem) {
-            tasks = parent.tasks;
-            parentNamespace = parent.label;
-            namespaceMap = parent.namespaceMap;
-            workspace = parent.workspace;
+        return Promise.resolve([]);
+    }
+
+    createTreeItems(
+        workspace: string,
+        namespaces: Map<string, Namespace>,
+        tasks: Task[]
+    ): TreeItem[] {
+        var treeItems: TreeItem[] = [];
+
+        // Add each namespace to the tree
+        if (namespaces) {
+            for (const [key, namespace] of Object.entries(namespaces)){
+                treeItems = treeItems.concat(new NamespaceTreeItem(
+                    key,
+                    workspace,
+                    namespace,
+                    vscode.TreeItemCollapsibleState.Collapsed
+                ));
+            }
         }
 
-
-        if (tasks === undefined) {
-            return Promise.resolve([]);
-        }
-
-        let namespaceTreeItems = new Map<string, NamespaceTreeItem>();
-        let taskTreeItems: TaskTreeItem[] = [];
-        tasks.forEach(task => {
-            let taskName = task.name.split(":").pop() ?? task.name;
-            let namespacePath = trimParentNamespace(task.name, parentNamespace);
-            let namespaceName = getNamespaceName(namespacePath);
-
-            if (taskName in namespaceMap) {
-                let item = new TaskTreeItem(
-                    task.name.split(namespaceSeparator).pop() ?? task.name,
+        // Add each task to the tree
+        if (tasks) {
+            for (const task of tasks) {
+                treeItems = treeItems.concat(new TaskTreeItem(
+                    this._nesting ? task.name.split(namespaceSeparator).pop() ?? task.name : task.name,
                     workspace,
                     task,
                     vscode.TreeItemCollapsibleState.None,
@@ -91,119 +94,25 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
                         title: 'Go to Definition',
                         arguments: [task, true]
                     }
-                );
-                taskTreeItems = taskTreeItems.concat(item);
+                ));
             }
+        }
 
-            if (namespaceName in namespaceMap && namespaceMap[namespaceName] !== null) {
-                let namespaceTreeItem = namespaceTreeItems.get(namespaceName);
-
-                if (namespaceTreeItem === undefined) {
-                    namespaceTreeItem = new NamespaceTreeItem(
-                        namespaceName,
-                        workspace,
-                        namespaceMap[namespaceName],
-                        [],
-                        vscode.TreeItemCollapsibleState.Collapsed
-                    );
-                }
-                namespaceTreeItem.tasks.push(task);
-                namespaceTreeItems.set(namespaceName, namespaceTreeItem);
-            }
-
-        });
-
-        // Add the namespace and tasks to the tree
-        namespaceTreeItems.forEach(namespace => {
-            treeItems = treeItems.concat(namespace);
-        });
-        treeItems = treeItems.concat(taskTreeItems);
-
-        return Promise.resolve(treeItems);
+        return treeItems;
     }
 
     getWorkspaces(): WorkspaceTreeItem[] {
         let workspaceTreeItems: WorkspaceTreeItem[] = [];
-        this._taskfiles?.forEach(taskfile => {
-            let dir = path.dirname(taskfile.location);
+        this._namespaces?.forEach(namespace => {
+            let dir = path.dirname(namespace.location);
             let workspaceTreeItem = new WorkspaceTreeItem(
                 path.basename(dir),
                 dir,
-                taskfile.tasks,
+                namespace,
                 vscode.TreeItemCollapsibleState.Expanded
             );
             workspaceTreeItems = workspaceTreeItems.concat(workspaceTreeItem);
         });
         return workspaceTreeItems;
     }
-
-    refresh(taskfiles?: Taskfile[]): void {
-        if (taskfiles) {
-            this._taskfiles = taskfiles;
-            this._treeViewMap = {};
-
-            // loop over all of the tasks in all of the task files and map their names into a set
-            const taskNames = Array.from(new Set(
-                taskfiles.flatMap(taskfile =>
-                    taskfile.tasks.flatMap(task => task.name)
-                )
-                // and sort desc so we know that the namespace reduction sets child objects correctly.
-            )).sort((a, b) => (a > b ? -1 : 1));
-
-            taskNames.reduce((acc: any, key: string) => {
-                const parts = key.split(':');
-                let currentLevel = acc;
-
-                parts.forEach((part, index) => {
-                    if (part === "") {
-                        return;
-                    };
-
-                    if (!(part in currentLevel)) {
-                        currentLevel[part] = {};
-                        if (index === parts.length - 1) {
-                            currentLevel[part] = null;
-                        }
-                    }
-
-                    currentLevel = currentLevel[part] as TaskMapping;
-                });
-
-                return acc;
-            }, this._treeViewMap);
-        }
-        this._onDidChangeTreeData.fire(undefined);
-    }
-}
-
-function getFullNamespacePath(task: Task): string {
-    // If the task has no namespace, return undefined
-    if (!task.name.includes(namespaceSeparator)) {
-        return "";
-    }
-    // Return the task's namespace by removing the last element
-    return task.name.substring(0, task.name.lastIndexOf(namespaceSeparator));
-}
-
-function trimParentNamespace(namespace: string, parentNamespace: string): string {
-    if (parentNamespace === "") {
-        return namespace;
-    }
-
-    const index = namespace.indexOf(parentNamespace + namespaceSeparator);
-
-    if (index === -1) {
-        return namespace;
-    }
-
-    return namespace.substring(index + parentNamespace.length + 1);
-}
-
-function getNamespaceName(namespacePath: string): string {
-    // If the namespace has no separator, return the namespace
-    if (!namespacePath.includes(namespaceSeparator)) {
-        return namespacePath;
-    }
-    // Return the first element of the namespace
-    return namespacePath.substring(0, namespacePath.indexOf(namespaceSeparator));
 }
