@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Bumped the minimum required version of `task` to v3.45.3.
+- Refactored tree view to use the new `--nested` task command (#214 by @pd93).
+  - This should make it much faster and less buggy.
 - Disabled double-click to run by default (by @pd93).
   - This was done to prevent running Tasks accidentally and because double-click
     conflicts with the default VSCode action of opening a Task definition with
