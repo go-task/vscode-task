@@ -278,7 +278,7 @@
     "configuration": {
       "title": "Task configuration",
       "properties": {
-        "task": {
+        "taskfile": {
           "type": "object",
           "description": "Task configuration options.",
           "properties": {

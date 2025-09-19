@@ -3,6 +3,7 @@ import { log } from './log.js';
 
 class Settings {
     private static _instance: Settings;
+    private static namespace = "taskfile";
     public updateOn!: UpdateOn;
     public path!: string;
     public outputTo!: OutputTo;
@@ -23,8 +24,18 @@ class Settings {
     public update() {
         log.info("Updating settings");
 
+        // Check if the old configuration still exists
+        let oldConfig = vscode.workspace.getConfiguration("task");
+        if (oldConfig) {
+            vscode.window.showWarningMessage(`Task changed its configuration namespace from "task" to "taskfile". Your task settings will not be applied until you update your settings accordingly.`, "More Info").then(selection => {
+                if (selection === "More Info") {
+                    vscode.env.openExternal(vscode.Uri.parse("https://taskfile.dev/docs/integrations#configuration-namespace-change"));
+                }
+            });
+        }
+
         // Get the workspace config
-        let config = vscode.workspace.getConfiguration("task");
+        let config = vscode.workspace.getConfiguration(Settings.namespace);
 
         // Set the properties
         this.updateOn = config.get("updateOn") ?? UpdateOn.save;
