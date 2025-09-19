@@ -24,7 +24,7 @@ class Settings {
         log.info("Updating settings");
 
         // Get the workspace config
-        let config = vscode.workspace.getConfiguration("task");
+        let config = vscode.workspace.getConfiguration("taskfile");
 
         // Set the properties
         this.updateOn = config.get("updateOn") ?? UpdateOn.save;
