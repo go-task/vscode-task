@@ -14,7 +14,7 @@ const octokit = new Octokit();
 type ReleaseRequest = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["parameters"];
 type ReleaseResponse = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["response"];
 
-const minimumRequiredVersion = '3.45.0';
+const minimumRequiredVersion = '3.45.3';
 
 // General exit codes
 const errCodeOK = 0;
