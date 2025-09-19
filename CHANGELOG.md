@@ -3,8 +3,14 @@
 ## Unreleased
 
 - Bumped the minimum required version of `task` to v3.45.3.
+- Fixed a bug where custom sorting and nesting would not work together (#214 by
+  @pd93).
+- Disabled status checking by default as it causes the extension to be very slow
+  on large Taskfiles (#214 by @pd93).
+  - It can be re-enabled by setting `tree.status` to `true` (#214 by @pd93).
 - Refactored tree view to use the new `--nested` task command (#214 by @pd93).
   - This should make it much faster and less buggy.
+- Changed the icon/color for tasks in the tree view (#214 by @pd93).
 - Disabled double-click to run by default (by @pd93).
   - This was done to prevent running Tasks accidentally and because double-click
     conflicts with the default VSCode action of opening a Task definition with
