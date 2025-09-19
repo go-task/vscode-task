@@ -36,7 +36,7 @@
     "dependencies": false,
     "useYarn": false
   },
-  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b",
+  "packageManager": "pnpm@10.17.0+sha512.fce8a3dd29a4ed2ec566fb53efbb04d8c44a0f05bc6f24a73046910fb9c3ce7afa35a0980500668fa3573345bd644644fa98338fa168235c80f4aa17aa17fbef",
   "categories": [
     "Other"
   ],
@@ -385,17 +385,17 @@
   },
   "devDependencies": {
     "@types/mocha": "10.0.10",
-    "@types/node": "24.3.0",
+    "@types/node": "24.5.2",
     "@types/semver": "^7.7.0",
     "@types/vscode": "1.100.0",
-    "@typescript-eslint/eslint-plugin": "8.40.0",
-    "@typescript-eslint/parser": "8.40.0",
+    "@typescript-eslint/eslint-plugin": "8.44.0",
+    "@typescript-eslint/parser": "8.44.0",
     "@vscode/test-cli": "0.0.11",
     "@vscode/test-electron": "2.5.2",
     "@vscode/vsce": "3.6.0",
-    "esbuild": "0.25.9",
-    "eslint": "9.34.0",
-    "mocha": "11.7.1",
+    "esbuild": "0.25.10",
+    "eslint": "9.36.0",
+    "mocha": "11.7.2",
     "ovsx": "0.10.5",
     "typescript": "5.9.2"
   },
