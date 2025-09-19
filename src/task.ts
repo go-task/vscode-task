@@ -5,7 +5,7 @@ import { ActivityBar } from './elements/activityBar.js';
 import { Namespace, Task } from './models/models.js';
 import { taskfileSvc } from './services/taskfile.js';
 import { log } from './utils/log.js';
-import { settings, UpdateOn } from './utils/settings.js';
+import { configKey, oldConfigKey, settings, UpdateOn } from './utils/settings.js';
 
 export class TaskExtension {
     private _taskfiles: Namespace[] = [];
@@ -289,7 +289,7 @@ export class TaskExtension {
 
     private _onDidChangeConfiguration(event: vscode.ConfigurationChangeEvent) {
         log.info("Detected changes to configuration");
-        if (event.affectsConfiguration("task")) {
+        if (event.affectsConfiguration(configKey) || event.affectsConfiguration(oldConfigKey)) {
             settings.update();
             this._nesting = settings.tree.nesting;
             this._status = settings.tree.status;

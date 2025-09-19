@@ -1,9 +1,23 @@
 import * as vscode from 'vscode';
 import { log } from './log.js';
 
+export const configKey = "taskfile";
+export const oldConfigKey = "task";
+const oldConfigKeys = [
+    "updateOn",
+    "path",
+    "outputTo",
+    "checkForUpdates",
+    "doubleClickTimeout",
+    "tree.nesting",
+    "tree.status",
+    "tree.sort",
+    "terminal.per",
+    "terminal.close",
+];
+
 class Settings {
     private static _instance: Settings;
-    private static namespace = "taskfile";
     public updateOn!: UpdateOn;
     public path!: string;
     public outputTo!: OutputTo;
@@ -25,9 +39,9 @@ class Settings {
         log.info("Updating settings");
 
         // Check if the old configuration still exists
-        let oldConfig = vscode.workspace.getConfiguration("task");
-        if (oldConfig) {
-            vscode.window.showWarningMessage(`Task changed its configuration namespace from "task" to "taskfile". Your task settings will not be applied until you update your settings accordingly.`, "More Info").then(selection => {
+        const oldConfig = vscode.workspace.getConfiguration(oldConfigKey);
+        if (oldConfigKeys.some(key => oldConfig.has(key))) {
+            vscode.window.showWarningMessage(`Task changed its configuration namespace from "${oldConfigKey}" to "${configKey}". Your task settings will not be applied until you update your settings accordingly.`, "More Info").then(selection => {
                 if (selection === "More Info") {
                     vscode.env.openExternal(vscode.Uri.parse("https://taskfile.dev/docs/integrations#configuration-namespace-change"));
                 }
@@ -35,7 +49,7 @@ class Settings {
         }
 
         // Get the workspace config
-        let config = vscode.workspace.getConfiguration(Settings.namespace);
+        let config = vscode.workspace.getConfiguration(configKey);
 
         // Set the properties
         this.updateOn = config.get("updateOn") ?? UpdateOn.save;
@@ -77,7 +91,7 @@ class TreeSettings {
         log.info("Updating tree settings");
 
         // Get the workspace config
-        let config = vscode.workspace.getConfiguration("task");
+        let config = vscode.workspace.getConfiguration(configKey);
 
         // Set the properties
         this.nesting = config.get("tree.nesting") ?? true;
@@ -110,7 +124,7 @@ class TerminalSettings {
         log.info("Updating terminal settings");
 
         // Get the workspace config
-        let config = vscode.workspace.getConfiguration("task");
+        let config = vscode.workspace.getConfiguration(configKey);
 
         // Set the properties
         this.per = config.get("terminal.per") ?? TerminalPer.window;
