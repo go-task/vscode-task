@@ -402,7 +402,6 @@
   "dependencies": {
     "@octokit/types": "14.1.0",
     "octokit": "5.0.3",
-    "semver": "7.7.2",
-    "strip-ansi": "7.1.0"
+    "semver": "7.7.2"
   }
 }

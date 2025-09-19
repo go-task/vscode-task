@@ -8,7 +8,7 @@ import * as vscode from 'vscode';
 import { Namespace, Task } from '../models/models.js';
 import { OutputTo, TerminalClose, TerminalPer, TreeSort, settings } from '../utils/settings.js';
 import { log } from '../utils/log.js';
-import stripAnsi from 'strip-ansi';
+import { stripVTControlCharacters} from 'node:util';
 
 const octokit = new Octokit();
 type ReleaseRequest = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["parameters"];
@@ -279,13 +279,13 @@ class TaskfileService {
                 // Listen for stderr
                 child.stderr.setEncoding('utf8');
                 child.stderr.on("data", data => {
-                    TaskfileService.outputChannel.append(stripAnsi(data.toString()));
+                    TaskfileService.outputChannel.append(stripVTControlCharacters(data.toString()));
                 });
 
                 // Listen for stdout
                 child.stdout.setEncoding('utf8');
                 child.stdout.on("data", data => {
-                    TaskfileService.outputChannel.append(stripAnsi(data.toString()));
+                    TaskfileService.outputChannel.append(stripVTControlCharacters(data.toString()));
                 });
 
                 // When the task finishes, print the exit code and resolve the promise
