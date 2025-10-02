@@ -182,6 +182,7 @@ class TaskfileService {
         return await new Promise((resolve, reject) => {
             let flags = [
                 "--list-all",
+				"--dry",
                 "--json"
             ];
             // Optional flags
