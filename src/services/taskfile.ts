@@ -51,7 +51,7 @@ class TaskfileService {
         return this._instance ?? (this._instance = new this());
     }
 
-    private command(command?: string, cliArgs?: string): string {
+    public command(command?: string, cliArgs?: string): string {
         if (command === undefined) {
             return settings.path;
         }

@@ -368,7 +368,25 @@
           }
         }
       }
-    }
+    },
+		"taskDefinitions": [
+			{
+				"type": "go-task",
+				"required": [
+					"name"
+				],
+				"properties": {
+					"task": {
+						"type": "string",
+						"description": "The Taskfile task to customize"
+					},
+					"location": {
+						"type": "string",
+						"description": "The Taskfile file that provides the task. Can be omitted."
+					}
+				}
+			}
+		]
   },
   "scripts": {
     "preinstall": "npx only-allow pnpm",

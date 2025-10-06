@@ -7,7 +7,28 @@ import { taskfileSvc } from './services/taskfile.js';
 import { log } from './utils/log.js';
 import { configKey, oldConfigKey, settings, UpdateOn } from './utils/settings.js';
 
-export class TaskExtension {
+function resolveTaskForNamespace(ns: Namespace) : vscode.Task[] {
+    const result: vscode.Task[] = [];
+    if (ns.tasks.length > 0) {
+        ns.tasks.forEach(task => {
+            const definition = {"type":TaskExtension.TaskExtensionTaskType, "name":task.name, "location":task.location}
+            const execution = new vscode.ShellExecution(`${taskfileSvc.command()} ${task.name}`)
+            const vTask = new vscode.Task(definition, vscode.TaskScope.Workspace, task.name, TaskExtension.TaskExtensionTaskType, execution);
+            result.push(vTask);
+        });
+    }
+    if (ns.namespaces === undefined) {
+        return result
+    }
+    const nss = new Map<string, Namespace>(Object.entries(ns.namespaces))
+    nss.forEach((obj) => {
+        result.push(...resolveTaskForNamespace(obj))
+    });
+    return result
+}
+
+export class TaskExtension implements vscode.TaskProvider<vscode.Task> {
+    public static TaskExtensionTaskType = 'go-task';
     private _taskfiles: Namespace[] = [];
     private _activityBar: ActivityBar;
     private _watcher: vscode.FileSystemWatcher;
@@ -21,6 +42,17 @@ export class TaskExtension {
         this._nesting = settings.tree.nesting;
         this._status = settings.tree.status;
         vscode.commands.executeCommand('setContext', 'vscode-task:treeNesting', this._nesting);
+    }
+    
+
+    public async provideTasks(token: vscode.CancellationToken): Promise<vscode.Task[]> {
+        await this.refresh();
+        return this.getVscodeTask();
+    }
+    public resolveTask(_task: vscode.Task, token: vscode.CancellationToken): vscode.ProviderResult<vscode.Task> {
+        const definition = {"type":TaskExtension.TaskExtensionTaskType, "name":_task.name}
+        const execution = new vscode.ShellExecution(`${taskfileSvc.command()} ${definition.name}`)
+        return new vscode.Task(definition, _task.scope ?? vscode.TaskScope.Workspace, definition.name, 'go-task', execution);
     }
 
     public async update(checkForUpdates?: boolean): Promise<void> {
@@ -257,6 +289,17 @@ export class TaskExtension {
         vscode.workspace.onDidChangeConfiguration(event => { this._onDidChangeConfiguration(event); });
     }
 
+	public registerTaskProvider(context: vscode.ExtensionContext): void {
+		vscode.tasks.registerTaskProvider(TaskExtension.TaskExtensionTaskType, this);
+	}
+    private async getVscodeTask(): Promise<vscode.Task[]> {
+        const result: vscode.Task[] = [];
+        this._taskfiles.forEach(taskfile => {
+            result.push(...resolveTaskForNamespace(taskfile))
+        });
+        return result;
+    }
+
     private _loadTasksFromTaskfile() {
         let items: vscode.QuickPickItem[] = [];
         this._taskfiles.forEach(taskfile => {
@@ -264,6 +307,7 @@ export class TaskExtension {
                 items = items.concat(new QuickPickTaskSeparator(taskfile));
                 taskfile.tasks.forEach(task => {
                     items = items.concat(new QuickPickTaskItem(taskfile, task));
+
                 });
             }
         });
