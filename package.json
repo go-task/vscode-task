@@ -400,7 +400,7 @@
     "typescript": "5.9.2"
   },
   "dependencies": {
-    "@octokit/types": "14.1.0",
+    "@octokit/types": "16.0.0",
     "octokit": "5.0.3",
     "semver": "7.7.2"
   }
