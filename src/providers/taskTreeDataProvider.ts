@@ -1,9 +1,38 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { TreeItem, TaskTreeItem, NamespaceTreeItem, WorkspaceTreeItem } from '../elements/treeItem.js';
+import { NamespaceTreeItem, TaskTreeItem, TreeItem, WorkspaceTreeItem } from '../elements/treeItem.js';
 import { Namespace, Task } from '../models/models.js';
 
 const namespaceSeparator = ':';
+
+/**
+ * Recursively finds the smallest location.line across all tasks
+ * in a namespace and its sub-namespaces. When taskfile is provided,
+ * only tasks belonging to that file are considered (this prevents
+ * included files from pulling a namespace out of order).
+ * Returns Infinity if no matching tasks exist.
+ */
+function getMinLine(namespace: Namespace, taskfile?: string): number {
+    let min = Infinity;
+    if (namespace.tasks) {
+        for (const task of namespace.tasks) {
+            if (task.location && task.location.line < min) {
+                if (!taskfile || task.location.taskfile === taskfile) {
+                    min = task.location.line;
+                }
+            }
+        }
+    }
+    if (namespace.namespaces) {
+        for (const [, child] of Object.entries(namespace.namespaces)) {
+            const childMin = getMinLine(child, taskfile);
+            if (childMin < min) {
+                min = childMin;
+            }
+        }
+    }
+    return min;
+}
 
 export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<TaskTreeItem | undefined> = new vscode.EventEmitter<TaskTreeItem | undefined>();
@@ -46,7 +75,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
             return Promise.resolve(this.createTreeItems(
                 this._namespaces[0].workspace ?? "",
                 this._namespaces[0].namespaces,
-                this._namespaces[0].tasks
+                this._namespaces[0].tasks,
+                this._namespaces[0].location
             ));
         }
 
@@ -55,7 +85,8 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
             return Promise.resolve(this.createTreeItems(
                 parent.workspace,
                 parent.namespace.namespaces,
-                parent.namespace.tasks
+                parent.namespace.tasks,
+                parent.namespace.location
             ));
         }
 
@@ -65,40 +96,52 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     createTreeItems(
         workspace: string,
         namespaces: Map<string, Namespace>,
-        tasks: Task[]
+        tasks: Task[],
+        taskfile?: string
     ): TreeItem[] {
-        var treeItems: TreeItem[] = [];
+        // Build a unified list with sort keys so we can interleave
+        // namespaces and tasks in their original Taskfile order.
+        const entries: { line: number; item: TreeItem }[] = [];
 
-        // Add each namespace to the tree
+        // Add each namespace to the list
         if (namespaces) {
             for (const [key, namespace] of Object.entries(namespaces)){
-                treeItems = treeItems.concat(new NamespaceTreeItem(
-                    key,
-                    workspace,
-                    namespace,
-                    vscode.TreeItemCollapsibleState.Collapsed
-                ));
+                entries.push({
+                    line: getMinLine(namespace, taskfile),
+                    item: new NamespaceTreeItem(
+                        key,
+                        workspace,
+                        namespace,
+                        vscode.TreeItemCollapsibleState.Collapsed
+                    )
+                });
             }
         }
 
-        // Add each task to the tree
+        // Add each task to the list
         if (tasks) {
             for (const task of tasks) {
-                treeItems = treeItems.concat(new TaskTreeItem(
-                    this._nesting ? task.name.split(namespaceSeparator).pop() ?? task.name : task.name,
-                    workspace,
-                    task,
-                    vscode.TreeItemCollapsibleState.None,
-                    {
-                        command: 'vscode-task.goToDefinition',
-                        title: 'Go to Definition',
-                        arguments: [task, true]
-                    }
-                ));
+                entries.push({
+                    line: task.location?.line ?? Infinity,
+                    item: new TaskTreeItem(
+                        this._nesting ? task.name.split(namespaceSeparator).pop() ?? task.name : task.name,
+                        workspace,
+                        task,
+                        vscode.TreeItemCollapsibleState.None,
+                        {
+                            command: 'vscode-task.goToDefinition',
+                            title: 'Go to Definition',
+                            arguments: [task, true]
+                        }
+                    )
+                });
             }
         }
 
-        return treeItems;
+        // Sort by line number to preserve original Taskfile order
+        entries.sort((a, b) => a.line - b.line);
+
+        return entries.map((e) => e.item);
     }
 
     getWorkspaces(): WorkspaceTreeItem[] {

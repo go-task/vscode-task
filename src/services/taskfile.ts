@@ -1,14 +1,14 @@
 import { Endpoints } from "@octokit/types";
 import * as cp from 'child_process';
 import * as fs from 'fs';
+import { stripVTControlCharacters } from 'node:util';
 import { Octokit } from 'octokit';
 import * as path from 'path';
 import * as semver from 'semver';
 import * as vscode from 'vscode';
 import { Namespace, Task } from '../models/models.js';
-import { OutputTo, TerminalClose, TerminalPer, TreeSort, settings } from '../utils/settings.js';
 import { log } from '../utils/log.js';
-import { stripVTControlCharacters} from 'node:util';
+import { OutputTo, TerminalClose, TerminalPer, TreeSort, settings } from '../utils/settings.js';
 
 const octokit = new Octokit();
 type ReleaseRequest = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["parameters"];
@@ -132,7 +132,7 @@ class TaskfileService {
             owner: 'go-task',
             repo: 'task'
         };
-        let response: ReleaseResponse = await octokit.rest.repos.getLatestRelease(request);
+        let response = await octokit.rest.repos.getLatestRelease(request);
         return Promise.resolve(semver.parse(response.data.tag_name));
     }
 
