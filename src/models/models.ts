@@ -1,12 +1,13 @@
+// Namespace represents an individual Taskfile namespace and is used for
+// decoding the JSON output from `task --list --json`.
 export interface Namespace {
     tasks: Task[];
     namespaces: Map<string, Namespace>;
     location: string; // The location of the actual Taskfile
-    // The vscode workspace directory where the command was executed to find this taskfile
-    // This is where tasks in this taskfile will be executed from.
-    workspace: string;
 }
 
+// Task represents an individual Taskfile task and is used for decoding
+// the JSON output from `task --list --json`.
 export interface Task {
     name: string;
     desc: string;
@@ -16,6 +17,8 @@ export interface Task {
     location: Location;
 }
 
+// Location represents the location of a task in a Taskfile and is used for
+// decoding the JSON output from `task --list --json`.
 export interface Location {
     taskfile: string;
     line: number;

@@ -2,18 +2,20 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { TreeItem, TaskTreeItem, NamespaceTreeItem, WorkspaceTreeItem } from '../elements/treeItem.js';
 import { Namespace, Task } from '../models/models.js';
+import { Taskfile } from '../models/taskfile.js';
+import { TaskDefinition } from '../models/taskDefinition.js';
 
 const namespaceSeparator = ':';
 
 export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
     private _onDidChangeTreeData: vscode.EventEmitter<TaskTreeItem | undefined> = new vscode.EventEmitter<TaskTreeItem | undefined>();
     readonly onDidChangeTreeData: vscode.Event<TaskTreeItem | undefined> = this._onDidChangeTreeData.event;
-    private _namespaces?: Namespace[];
+    private _taskfiles?: Taskfile[];
     private _nesting: boolean = false;
 
-    refresh(namespaces?: Namespace[], nesting?: boolean): void {
-        if (namespaces) {
-            this._namespaces = namespaces;
+    refresh(taskfiles?: Taskfile[], nesting?: boolean): void {
+        if (taskfiles) {
+            this._taskfiles = taskfiles;
         }
         this._nesting = nesting ?? this._nesting;
         this._onDidChangeTreeData.fire(undefined);
@@ -37,16 +39,16 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
         }
 
         // If there are no namespaces, return an empty array
-        if (!this._namespaces || this._namespaces.length === 0) {
+        if (!this._taskfiles || this._taskfiles.length === 0) {
             return Promise.resolve([]);
         }
 
         // If there is no parent and exactly one workspace folder or if the parent is a workspace
         if (!parent && vscode.workspace.workspaceFolders.length === 1) {
             return Promise.resolve(this.createTreeItems(
-                this._namespaces[0].workspace ?? "",
-                this._namespaces[0].namespaces,
-                this._namespaces[0].tasks
+                this._taskfiles[0].workspace ?? "",
+                this._taskfiles[0].namespace.namespaces,
+                this._taskfiles[0].namespace.tasks
             ));
         }
 
@@ -84,15 +86,16 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
         // Add each task to the tree
         if (tasks) {
             for (const task of tasks) {
+                const definition = new TaskDefinition(task, workspace);
                 treeItems = treeItems.concat(new TaskTreeItem(
                     this._nesting ? task.name.split(namespaceSeparator).pop() ?? task.name : task.name,
                     workspace,
-                    task,
+                    definition,
                     vscode.TreeItemCollapsibleState.None,
                     {
                         command: 'vscode-task.goToDefinition',
                         title: 'Go to Definition',
-                        arguments: [task, true]
+                        arguments: [definition, true]
                     }
                 ));
             }
@@ -103,12 +106,12 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
 
     getWorkspaces(): WorkspaceTreeItem[] {
         let workspaceTreeItems: WorkspaceTreeItem[] = [];
-        this._namespaces?.forEach(namespace => {
-            let dir = path.dirname(namespace.location);
+        this._taskfiles?.forEach(taskfile => {
+            let dir = path.dirname(taskfile.location);
             let workspaceTreeItem = new WorkspaceTreeItem(
                 path.basename(dir),
                 dir,
-                namespace,
+                taskfile.namespace,
                 vscode.TreeItemCollapsibleState.Expanded
             );
             workspaceTreeItems = workspaceTreeItems.concat(workspaceTreeItem);

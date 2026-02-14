@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
-import { Namespace, Task } from '../models/models.js';
+import { Namespace } from '../models/models.js';
+import { TaskDefinition } from '../models/taskDefinition.js';
 
 export type TreeItem = WorkspaceTreeItem | NamespaceTreeItem | TaskTreeItem;
 
@@ -45,13 +46,13 @@ export class TaskTreeItem extends vscode.TreeItem {
     constructor(
         readonly label: string,
         readonly workspace: string,
-        readonly task: Task,
+        readonly definition: TaskDefinition,
         readonly collapsibleState: vscode.TreeItemCollapsibleState,
         readonly command?: vscode.Command
     ) {
         super(label, collapsibleState);
-        this.description = this.task?.desc;
-        switch (this.task.up_to_date) {
+        this.description = this.definition?.description;
+        switch (this.definition.upToDate) {
             case true:
                 this.iconPath = new vscode.ThemeIcon(
                     TaskTreeItem.icon,

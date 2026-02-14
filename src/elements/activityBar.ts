@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { TaskTreeDataProvider } from '../providers/taskTreeDataProvider.js';
-import { Namespace } from '../models/models.js';
+import { Taskfile } from '../models/taskfile.js';
 
 export class ActivityBar {
     private _provider: TaskTreeDataProvider;
@@ -16,7 +16,7 @@ export class ActivityBar {
         });
     }
 
-    public refresh(taskfiles?: Namespace[], nesting?: boolean): void {
+    public refresh(taskfiles?: Taskfile[], nesting?: boolean): void {
         this._provider.refresh(taskfiles, nesting);
     }
 }
