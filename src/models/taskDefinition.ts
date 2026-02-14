@@ -14,7 +14,7 @@ export class TaskDefinition implements vscode.TaskDefinition {
 
     // Required to satisfy vscode.TaskDefinition
     public get task(): string {
-        return this._task.name;
+        return this._task.task;
     }
 
     public get name(): string {
@@ -40,7 +40,7 @@ export class TaskDefinition implements vscode.TaskDefinition {
         const task = new vscode.Task(
             this,
             workspaceFolder,
-            this.task,
+            this.name,
             this.type,
             new vscode.ShellExecution(
                 `${settings.path} ${this.task}${cliArgs && cliArgs.length > 0 ? " -- " + cliArgs.join(' ') : ''}`,

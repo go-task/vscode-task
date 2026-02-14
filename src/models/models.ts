@@ -10,6 +10,7 @@ export interface Namespace {
 // the JSON output from `task --list --json`.
 export interface Task {
     name: string;
+    task: string;
     desc: string;
     summary: string;
     // eslint-disable-next-line @typescript-eslint/naming-convention
