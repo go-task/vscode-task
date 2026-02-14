@@ -1,13 +1,32 @@
 # Changelog
 
-## Unreleased
+## v1.0.0 - 2026-02-14
 
-- Bumped the minimum required version of `task` to v3.45.3.
-- Fixed a bug where custom sorting and nesting would not work together (#214 by
-  @pd93).
+The Task extension deserves a bit of love too, so this Valantine's Day we're
+releasing v1.0.0! This release includes a lot of improvements and bug fixes.
+Mainly around the tree view, task execution and performance.
+
+- **BREAKING** Bumped the minimum required version of `task` to v3.45.3.
+- **BREAKING** The configuration key for the extension has been changed from
+  `task` to `taskfile` to avoid conflicts with VS Code's built-in task system.
+  This resolves a long-standing issue where our extension stopped _all_ VS Code
+  tasks from working (#217 by @pd93).
+  - For example, `task.path` is now `taskfile.path`.
+  - A message will be displayed asking you to fix this when you update the
+    extension.
+- Overhauled the task executor (#232 and #233 by @pd93).
+  - It now uses VS Code's built-in task provider API instead of our custom
+  implementation. This should make it much more stable and fixes a bunch of open
+  issues on our bug/feature tracker.
+  - This also means that some configuration options have been removed as they
+    are no longer used:
+    - `taskfile.outputTo`
+    - `taskfile.terminal.per`
+    - `taskfile.terminal.close`
 - Disabled status checking by default as it causes the extension to be very slow
   on large Taskfiles (#214 by @pd93).
-  - It can be re-enabled by setting `tree.status` to `true` (#214 by @pd93).
+  - It can be re-enabled by setting `taskfile.tree.status` to `true` (#214 by
+    @pd93).
 - Refactored tree view to use the new `--nested` task command (#214 by @pd93).
   - This should make it much faster and less buggy.
 - Changed the icon/color for tasks in the tree view (#214 by @pd93).
@@ -15,8 +34,12 @@
   - This was done to prevent running Tasks accidentally and because double-click
     conflicts with the default VSCode action of opening a Task definition with
     preview disabled.
-  - It can be re-enabled by setting `task.doubleClickTimeout` to a value greater
-    than `0` (e.g. `500`) (by @pd93).
+  - It can be re-enabled by setting `taskfile.doubleClickTimeout` to a value
+    greater than `0` (e.g. `500`) (by @pd93).
+- Fixed a bug where custom sorting and nesting would not work together (#214 by
+  @pd93).
+- Fixed a bug where running labelled tasks from the extension would not work
+  (#234 by @pd93).
 
 ## v0.4.0 - 2025-08-21
 
@@ -67,9 +90,9 @@
   (#12, #43 by @pd93).
   - Configurable via `task.outputTo` setting (values: `output` (default) or
     `terminal`).
-- This extension is now also published on the
-  [Open VSX Registry](https://open-vsx.org/extension/task/vscode-task) (#26, #46
-  by @pd93).
+- This extension is now also published on the [Open VSX
+  Registry](https://open-vsx.org/extension/task/vscode-task) (#26, #46 by
+  @pd93).
   - This means you can now install it in [VSCodeium](https://vscodium.com/).
 
 ## v0.1.1 - 2023-03-27
