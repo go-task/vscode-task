@@ -5,8 +5,7 @@ import { Octokit } from 'octokit';
 import * as path from 'path';
 import * as semver from 'semver';
 import * as vscode from 'vscode';
-import { Namespace, Task } from '../models/models.js';
-import { OutputTo, TerminalClose, TerminalPer, TreeSort, settings } from '../utils/settings.js';
+import { TreeSort, settings } from '../utils/settings.js';
 import { log } from '../utils/log.js';
 import { Taskfile } from "../models/taskfile.js";
 import { TaskDefinition } from "../models/taskDefinition.js";
@@ -17,21 +16,8 @@ type ReleaseResponse = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["r
 
 const minimumRequiredVersion = '3.45.3';
 
-// General exit codes
-const errCodeOK = 0;
-const errCodeUnknown = 1;
-
-// Taskfile related exit codes
-const errCodeTaskfileNotFound = 100;
-const errCodeTaskfileAlreadyExists = 101;
+// Exit codes
 const errCodeTaskfileInvalid = 102;
-
-// Task related exit codes
-const errCodeTaskNotFound = 200;
-const errCodeTaskRunError = 201;
-const errCodeTaskInternal = 202;
-const errCodeTaskNameConflict = 203;
-const errCodeTaskCalledTooManyTimes = 204;
 
 class TaskfileService {
     private static _instance: TaskfileService;
