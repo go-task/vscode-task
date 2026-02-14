@@ -2,8 +2,8 @@
 
 ## v1.0.0 - 2026-02-14
 
-The Task extension deserves a bit of love too, so this Valantine's Day we're
-releasing v1.0.0! This release includes a lot of improvements and bug fixes.
+The Task extension deserves a bit of love too, so this Valentine's Day we're
+releasing v1.0.0! 🥰 This release includes a lot of improvements and bug fixes.
 Mainly around the tree view, task execution and performance.
 
 - **BREAKING** Bumped the minimum required version of `task` to v3.45.3.
