@@ -42,41 +42,48 @@ export class TaskProvider implements vscode.TaskProvider<vscode.Task> {
 	private getTasksFromTaskfiles(taskfiles: Namespace[]): vscode.Task[] {
         let tasks: vscode.Task[] = [];
         taskfiles.forEach(namespace => {
-            tasks = tasks.concat(this.getTasksFromNamespace(namespace));
+            tasks = tasks.concat(this.getTasksFromNamespace(namespace, namespace.workspace));
         });
         return tasks;
 	}
 
-    private getTasksFromNamespace(namespace: Namespace): vscode.Task[] {
+    // We have an additional workspace parameter to so that we can always pass
+    // in the root workspace as the current workspace being passed may not be
+    // populated.
+    private getTasksFromNamespace(namespace: Namespace, workspace: string): vscode.Task[] {
         let tasks: vscode.Task[] = [];
 
         // Add the tasks in this namespace
-        namespace.tasks.forEach(task => {
-            const definition: TaskDefinition = {
-                type: 'taskfile',
-                task: task.name,
-                workspace: namespace.workspace
-            }
-            const uri = vscode.Uri.file(namespace.workspace);
-            const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-            if (!workspaceFolder) {
-                return;
-            }
-            const vscodeTask = new vscode.Task(
-                definition,
-                workspaceFolder,
-                task.name,
-                'taskfile',
-                new vscode.ShellExecution(`${settings.path} ${task.name}`, { cwd: namespace.workspace })
-            );
-            vscodeTask.detail = task.desc || '';
-            tasks.push(vscodeTask);
-        });
+        if (namespace.tasks) {
+            namespace.tasks.forEach(task => {
+                const definition: TaskDefinition = {
+                    type: 'taskfile',
+                    task: task.name,
+                    workspace: workspace
+                }
+                const uri = vscode.Uri.file(workspace);
+                const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
+                if (!workspaceFolder) {
+                    return;
+                }
+                const vscodeTask = new vscode.Task(
+                    definition,
+                    workspaceFolder,
+                    task.name,
+                    'taskfile',
+                    new vscode.ShellExecution(`${settings.path} ${task.name}`, { cwd: workspace })
+                );
+                vscodeTask.detail = task.desc || '';
+                tasks.push(vscodeTask);
+            });
+        }
 
         // Recursively handle nested namespaces
-        Array.prototype.forEach.call(namespace.namespaces, (childNamespace: Namespace) => {
-            tasks = tasks.concat(this.getTasksFromNamespace(childNamespace));
-        });
+        if (namespace.namespaces) {
+            for (const [_, childNamespace] of Object.entries(namespace.namespaces)) {
+                tasks = tasks.concat(this.getTasksFromNamespace(childNamespace, workspace));
+            }
+        }
 
         return tasks;
     }
