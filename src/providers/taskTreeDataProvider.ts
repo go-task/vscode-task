@@ -88,7 +88,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
             for (const task of tasks) {
                 const definition = new TaskDefinition(task, workspace);
                 treeItems = treeItems.concat(new TaskTreeItem(
-                    this._nesting ? task.name.split(namespaceSeparator).pop() ?? task.name : task.name,
+                    task.name != "" ? task.name : this._nesting ? task.task.split(namespaceSeparator).pop() ?? task.task : task.task,
                     workspace,
                     definition,
                     vscode.TreeItemCollapsibleState.None,
