@@ -37,6 +37,8 @@
 
 ## Configuration
 
+Taskfiles can be configured in your `settings.json` using the `taskfile` configuration key. The following settings are available:
+
 | Setting              | Type      | Allowed Values                    | Default     | Description                                                                                                                                   |
 | -------------------- | --------- | --------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `updateOn`           | `string`  | `"manual"`, `"save"`              | `"save"`    | When the list of tasks should be updated.                                                                                                     |
@@ -46,4 +48,4 @@
 | `doubleClickTimeout` | `number`  |                                   | `0`         | Time in milliseconds to consider a double-click. 0 disables double-click to run. 500 is a good starting point if you want to enable it.       |
 | `tree.nesting`       | `boolean` |                                   | `true`      | Whether to nest tasks by their namespace in the tree view.                                                                                    |
 | `tree.status`        | `boolean` |                                   | `false`     | Whether to show the status of tasks in the tree view (may be slow on large Taskfiles).                                                        |
-| `tree.sort`          | `sort`    | `default`, `alphanumeric`, `none` | `"default"` | The order in which to display tasks in the tree view.                                                                                         |
+| `tree.sort`          | `sort`    | `default`, `alphanumeric`, `none` | `"default"` | The order in which to display tasks in the tree view.<br>- `default` - Sorts tasks alphabetically by name, but ensures that root tasks (tasks without a namespace) are listed before namespaced tasks.<br>- `alphanumeric` - Sort tasks alphabetically by name.<br>- `none` - No sorting. Uses the order as defined in the Taskfile.                                                                                         |
