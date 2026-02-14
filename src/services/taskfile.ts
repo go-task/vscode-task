@@ -5,10 +5,10 @@ import { Octokit } from 'octokit';
 import * as path from 'path';
 import * as semver from 'semver';
 import * as vscode from 'vscode';
-import { Namespace, Task } from '../models/models.js';
-import { OutputTo, TerminalClose, TerminalPer, TreeSort, settings } from '../utils/settings.js';
+import { TreeSort, settings } from '../utils/settings.js';
 import { log } from '../utils/log.js';
-import { stripVTControlCharacters} from 'node:util';
+import { Taskfile } from "../models/taskfile.js";
+import { TaskDefinition } from "../models/taskDefinition.js";
 
 const octokit = new Octokit();
 type ReleaseRequest = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["parameters"];
@@ -16,36 +16,15 @@ type ReleaseResponse = Endpoints["GET /repos/{owner}/{repo}/releases/latest"]["r
 
 const minimumRequiredVersion = '3.45.3';
 
-// General exit codes
-const errCodeOK = 0;
-const errCodeUnknown = 1;
-
-// Taskfile related exit codes
-const errCodeTaskfileNotFound = 100;
-const errCodeTaskfileAlreadyExists = 101;
+// Exit codes
 const errCodeTaskfileInvalid = 102;
-
-// Task related exit codes
-const errCodeTaskNotFound = 200;
-const errCodeTaskRunError = 201;
-const errCodeTaskInternal = 202;
-const errCodeTaskNameConflict = 203;
-const errCodeTaskCalledTooManyTimes = 204;
 
 class TaskfileService {
     private static _instance: TaskfileService;
-    private static outputChannel: vscode.OutputChannel;
-    private static terminal: vscode.Terminal;
-    private lastTaskName: string | undefined;
-    private lastTaskDir: string | undefined;
-    private lastTaskCliArgs: string | undefined;
+    private lastTaskDefinition: TaskDefinition | undefined;
     private version: semver.SemVer | undefined;
 	private previousSelection: string | undefined;
 	private previousSelectionTimestamp: number | undefined;
-
-    private constructor() {
-        TaskfileService.outputChannel = vscode.window.createOutputChannel('Task');
-    }
 
     public static get instance() {
         return this._instance ?? (this._instance = new this());
@@ -177,7 +156,7 @@ class TaskfileService {
         }
     }
 
-    public async read(dir: string, nesting: boolean, status: boolean): Promise<Namespace | undefined> {
+    public async read(dir: string, nesting: boolean, status: boolean): Promise<Taskfile | undefined> {
         log.info(`Searching for taskfile in: "${dir}"`);
         return await new Promise((resolve, reject) => {
             let flags = [
@@ -218,107 +197,49 @@ class TaskfileService {
                     }
                     return resolve(undefined);
                 }
-                var taskfile: Namespace = JSON.parse(stdout);
-                if (path.dirname(taskfile.location) !== dir) {
+                const taskfile: Taskfile = new Taskfile(stdout);
+                if (taskfile.workspace !== dir) {
                     log.info(`Ignoring taskfile: "${taskfile.location}" (outside of workspace)`);
                     return reject();
                 }
                 log.info(`Found taskfile: "${taskfile.location}"`);
-                taskfile.workspace = dir;
                 return resolve(taskfile);
             });
         });
     }
 
     public async runLastTask(): Promise<void> {
-        if (this.lastTaskName === undefined) {
+        if (this.lastTaskDefinition === undefined) {
             vscode.window.showErrorMessage(`No task has been run yet.`);
             return;
         }
-        await this.runTask(this.lastTaskName, this.lastTaskDir, this.lastTaskCliArgs);
+        await this.runTask(this.lastTaskDefinition);
     }
 
-    public async runTask(taskName: string, dir?: string, cliArgs?: string): Promise<void> {
-        if (settings.outputTo === OutputTo.terminal) {
-            log.info(`Running task: "${taskName} ${cliArgs}" in: "${dir}"`);
-            if (TaskfileService.terminal !== undefined && settings.terminal.close === TerminalClose.onNextTask) {
-                log.info("Closing old terminal");
-                TaskfileService.terminal.dispose();
-            }
-            if (TaskfileService.terminal === undefined || TaskfileService.terminal.exitStatus !== undefined || settings.terminal.per === TerminalPer.task) {
-                log.info("Using new terminal");
-                TaskfileService.terminal = vscode.window.createTerminal("Task");
-            } else {
-                log.info("Using existing terminal");
-            }
-            TaskfileService.terminal.show();
-            TaskfileService.terminal.sendText(this.command(taskName, cliArgs));
-            log.info(`Task completed on the terminal`);
-            TaskfileService.outputChannel.append(`task: completed on the terminal\n`);
-            this.lastTaskName = taskName;
-            this.lastTaskDir = dir;
-            this.lastTaskCliArgs = cliArgs;
-        } else {
-            return await new Promise((resolve) => {
-                log.info(`Running task: "${taskName}" in: "${dir}"`);
-
-                // Spawn a child process
-                let args = [];
-                if (cliArgs === undefined) {
-                    args = [taskName];
-                } else {
-                    args = [taskName, "--", `${cliArgs}`];
-                }
-
-                let child = cp.spawn(this.command(), args, { cwd: dir });
-
-                // Open the output
-                TaskfileService.outputChannel.clear();
-                TaskfileService.outputChannel.show();
-
-                // Listen for stderr
-                child.stderr.setEncoding('utf8');
-                child.stderr.on("data", data => {
-                    TaskfileService.outputChannel.append(stripVTControlCharacters(data.toString()));
-                });
-
-                // Listen for stdout
-                child.stdout.setEncoding('utf8');
-                child.stdout.on("data", data => {
-                    TaskfileService.outputChannel.append(stripVTControlCharacters(data.toString()));
-                });
-
-                // When the task finishes, print the exit code and resolve the promise
-                child.on('close', code => {
-                    log.info(`Task completed with code ${code}`);
-                    TaskfileService.outputChannel.append(`task: completed with code ${code}\n`);
-                    this.lastTaskName = taskName;
-                    this.lastTaskDir = dir;
-                    this.lastTaskCliArgs = cliArgs;
-                    return resolve();
-                });
-            });
-        }
+    public async runTask(definition: TaskDefinition, cliArgs?: string[]): Promise<void> {
+        vscode.tasks.executeTask(definition.toTask(cliArgs)).then((v) => {
+            console.log(`Task started: ${v.task.name}`);
+        });
     }
 
-    public async goToDefinition(task: Task, preview: boolean = false): Promise<void> {
+    public async goToDefinition(definition: TaskDefinition, preview: boolean = false): Promise<void> {
 		const currentTime = Date.now();
 		const doubleClicked = this.previousSelection !== undefined && this.previousSelectionTimestamp !== undefined
-			&& this.previousSelection === task.name
+			&& this.previousSelection === definition.task
 			&& (currentTime - this.previousSelectionTimestamp) < settings.doubleClickTimeout;
         if (doubleClicked) {
             this.previousSelection = undefined;
             this.previousSelectionTimestamp = undefined;
-            return this.runTask(task.name);
+            return this.runTask(definition);
         }
 
-        log.info(`Navigating to "${task.name}" definition in: "${task.location.taskfile}"`);
+        log.info(`Navigating to "${definition.name}" definition in: "${definition.location.taskfile}"`);
 
-        let position = new vscode.Position(task.location.line - 1, task.location.column - 1);
+        let position = new vscode.Position(definition.location.line - 1, definition.location.column - 1);
         let range = new vscode.Range(position, position);
 
         // Create the vscode URI from the Taskfile path
-        let file = vscode.Uri.file(task.location.taskfile);
+        let file = vscode.Uri.file(definition.location.taskfile);
 
         // Create the vscode text document show options
         let options: vscode.TextDocumentShowOptions = {
@@ -333,7 +254,7 @@ class TaskfileService {
             log.error(err);
         }
 
-        this.previousSelection = task.name;
+        this.previousSelection = definition.name;
         this.previousSelectionTimestamp = currentTime;
     }
 }

@@ -1,27 +1,24 @@
-// TODO: Taking inspiration from:
+// Taking inspiration from:
 // - https://code.visualstudio.com/api/extension-guides/task-provider
 // - https://github.com/microsoft/vscode-extension-samples/blob/main/task-provider-sample/src/customTaskProvider.ts
 
 import * as vscode from 'vscode';
-import { Namespace } from '../models/models.js';
-import { settings } from '../utils/settings.js';
-
-export interface TaskDefinition extends vscode.TaskDefinition {
-    task: string;
-    file?: string;
-    workspace?: string;
-    args?: string[];
-}
+import { Taskfile } from '../models/taskfile.js';
+import { TaskDefinition } from '../models/taskDefinition.js';
 
 export class TaskProvider implements vscode.TaskProvider<vscode.Task> {
-    private _taskfiles: Namespace[] = [];
+    private _taskfiles: Taskfile[] = [];
 
-    public setTaskfiles(taskfiles: Namespace[]) {
+    public setTaskfiles(taskfiles: Taskfile[]) {
         this._taskfiles = taskfiles;
     }
 
 	public async provideTasks(): Promise<vscode.Task[]> {
-		return this.getTasksFromTaskfiles(this._taskfiles);
+        let tasks: vscode.Task[] = [];
+        this._taskfiles.forEach(taskfile => {
+            tasks = tasks.concat(taskfile.getTaskDefinitions().map(def => def.toTask()));
+        });
+        return Promise.resolve(tasks);
     }
 
 	public resolveTask(_task: vscode.Task): vscode.Task | undefined {
@@ -37,54 +34,5 @@ export class TaskProvider implements vscode.TaskProvider<vscode.Task> {
             );
         }
         return undefined;
-    }
-
-	private getTasksFromTaskfiles(taskfiles: Namespace[]): vscode.Task[] {
-        let tasks: vscode.Task[] = [];
-        taskfiles.forEach(namespace => {
-            tasks = tasks.concat(this.getTasksFromNamespace(namespace, namespace.workspace));
-        });
-        return tasks;
-	}
-
-    // We have an additional workspace parameter to so that we can always pass
-    // in the root workspace as the current workspace being passed may not be
-    // populated.
-    private getTasksFromNamespace(namespace: Namespace, workspace: string): vscode.Task[] {
-        let tasks: vscode.Task[] = [];
-
-        // Add the tasks in this namespace
-        if (namespace.tasks) {
-            namespace.tasks.forEach(task => {
-                const definition: TaskDefinition = {
-                    type: 'taskfile',
-                    task: task.name,
-                    workspace: workspace
-                }
-                const uri = vscode.Uri.file(workspace);
-                const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri);
-                if (!workspaceFolder) {
-                    return;
-                }
-                const vscodeTask = new vscode.Task(
-                    definition,
-                    workspaceFolder,
-                    task.name,
-                    'taskfile',
-                    new vscode.ShellExecution(`${settings.path} ${task.name}`, { cwd: workspace })
-                );
-                vscodeTask.detail = task.desc || '';
-                tasks.push(vscodeTask);
-            });
-        }
-
-        // Recursively handle nested namespaces
-        if (namespace.namespaces) {
-            for (const [_, childNamespace] of Object.entries(namespace.namespaces)) {
-                tasks = tasks.concat(this.getTasksFromNamespace(childNamespace, workspace));
-            }
-        }
-
-        return tasks;
     }
 }

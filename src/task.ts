@@ -2,14 +2,19 @@ import * as vscode from 'vscode';
 import { QuickPickTaskItem, QuickPickTaskSeparator } from './elements/quickPickItem.js';
 import { TaskTreeItem } from './elements/treeItem.js';
 import { ActivityBar } from './elements/activityBar.js';
-import { Namespace, Task } from './models/models.js';
+import { Task } from './models/models.js';
 import { TaskProvider } from './providers/taskProvider.js';
 import { taskfileSvc } from './services/taskfile.js';
 import { log } from './utils/log.js';
 import { configKey, oldConfigKey, settings, UpdateOn } from './utils/settings.js';
+import { Taskfile } from './models/taskfile.js';
+import { TaskDefinition } from './models/taskDefinition.js';
+
+const runTaskWithArgsPrompt = "Enter Command Line Arguments:";
+const runTaskWithArgsPlaceholder = "<arg1> <arg2> ...";
 
 export class TaskExtension {
-    private _taskfiles: Namespace[] = [];
+    private _taskfiles: Taskfile[] = [];
     private _activityBar: ActivityBar;
     private _watcher: vscode.FileSystemWatcher;
     private _changeTimeout: NodeJS.Timeout | null = null;
@@ -28,7 +33,7 @@ export class TaskExtension {
     public async update(checkForUpdates?: boolean): Promise<void> {
         // Do version checks
         await taskfileSvc.checkInstallation(checkForUpdates).then(
-            (status): Promise<PromiseSettledResult<Namespace | undefined>[]> => {
+            (status): Promise<PromiseSettledResult<Taskfile | undefined>[]> => {
 
                 // Set the status
                 vscode.commands.executeCommand('setContext', 'vscode-task:status', status);
@@ -39,7 +44,7 @@ export class TaskExtension {
                 }
 
                 // Read taskfiles
-                let p: Promise<Namespace | undefined>[] = [];
+                let p: Promise<Taskfile | undefined>[] = [];
                 vscode.workspace.workspaceFolders?.forEach((folder) => {
                     p.push(taskfileSvc.read(folder.uri.fsPath, this._nesting, this._status));
                 });
@@ -89,9 +94,6 @@ export class TaskExtension {
     }
 
     public registerCommands(context: vscode.ExtensionContext): void {
-        const RUNTASKWITHARGS_PROMPT = "Enter Command Line Arguments:";
-        const RUNTASKWITHARGS_PLACEHOLDER = "<arg1> <arg2> ...";
-
         // Initialise Taskfile
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.init', () => {
             log.info("Command: vscode-task.init");
@@ -134,24 +136,24 @@ export class TaskExtension {
         // Run task
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTask', (treeItem?: TaskTreeItem) => {
             log.info("Command: vscode-task.runTask");
-            if (treeItem?.task) {
-                taskfileSvc.runTask(treeItem.task.name, treeItem.workspace);
+            if (treeItem?.definition) {
+                taskfileSvc.runTask(treeItem.definition);
             }
         }));
 
         // Run task with args
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.runTaskWithArgs', (treeItem?: TaskTreeItem) => {
             log.info("vscode-task.runTaskWithArgs");
-            if (treeItem?.task) {
+            if (treeItem?.definition) {
                 vscode.window.showInputBox({
-                    prompt: RUNTASKWITHARGS_PROMPT,
-                    placeHolder: RUNTASKWITHARGS_PLACEHOLDER
+                    prompt: runTaskWithArgsPrompt,
+                    placeHolder: runTaskWithArgsPlaceholder
                 }).then((cliArgsInput) => {
                     if (cliArgsInput === undefined) {
                         vscode.window.showInformationMessage('No Args Supplied');
                         return;
                     }
-                    taskfileSvc.runTask(treeItem.task.name, treeItem.workspace, cliArgsInput);
+                    taskfileSvc.runTask(treeItem.definition, cliArgsInput.split(' '));
                 });
             }
         }));
@@ -168,7 +170,7 @@ export class TaskExtension {
 
             vscode.window.showQuickPick(items).then((item) => {
                 if (item && item instanceof QuickPickTaskItem) {
-                    taskfileSvc.runTask(item.label, item.namespace.workspace);
+                    taskfileSvc.runTask(item.definition);
                 }
             });
         }));
@@ -185,15 +187,15 @@ export class TaskExtension {
 
             vscode.window.showQuickPick(items).then((item) => {
                 vscode.window.showInputBox({
-                    prompt: RUNTASKWITHARGS_PROMPT,
-                    placeHolder: RUNTASKWITHARGS_PLACEHOLDER
+                    prompt: runTaskWithArgsPrompt,
+                    placeHolder: runTaskWithArgsPlaceholder
                 }).then((cliArgsInput) => {
                     if (cliArgsInput === undefined) {
                         vscode.window.showInformationMessage('No Args Supplied');
                         return;
                     }
                     if (item && item instanceof QuickPickTaskItem) {
-                        taskfileSvc.runTask(item.label, item.namespace.workspace, cliArgsInput);
+                        taskfileSvc.runTask(item.definition, cliArgsInput.split(' '));
                     }
                 });
             });
@@ -206,13 +208,13 @@ export class TaskExtension {
         }));
 
         // Go to definition
-        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinition', (task: TaskTreeItem | Task, preview: boolean = false) => {
+        context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinition', (task: TaskTreeItem | TaskDefinition, preview: boolean = false) => {
             log.info("Command: vscode-task.goToDefinition");
             if (task instanceof TaskTreeItem) {
-                if (task.task === undefined) {
+                if (task.definition === undefined) {
                     return;
                 }
-                task = task.task;
+                task = task.definition;
             }
             taskfileSvc.goToDefinition(task, preview);
         }));
@@ -220,22 +222,15 @@ export class TaskExtension {
         // Go to definition picker
         context.subscriptions.push(vscode.commands.registerCommand('vscode-task.goToDefinitionPicker', () => {
             log.info("Command: vscode-task.goToDefinitionPicker");
-            let items: vscode.QuickPickItem[] = [];
-            this._taskfiles.forEach(taskfile => {
-                if (taskfile.tasks.length > 0) {
-                    items = items.concat(new QuickPickTaskSeparator(taskfile));
-                    taskfile.tasks.forEach(task => {
-                        items = items.concat(new QuickPickTaskItem(taskfile, task));
-                    });
-                }
-            });
+            let items: vscode.QuickPickItem[] = this._loadTasksFromTaskfile();
+
             if (items.length === 0) {
                 vscode.window.showInformationMessage('No tasks found');
                 return;
             }
             vscode.window.showQuickPick(items).then((item) => {
                 if (item && item instanceof QuickPickTaskItem) {
-                    taskfileSvc.goToDefinition(item.task);
+                    taskfileSvc.goToDefinition(item.definition);
                 }
             });
         }));
@@ -271,10 +266,11 @@ export class TaskExtension {
     private _loadTasksFromTaskfile() {
         let items: vscode.QuickPickItem[] = [];
         this._taskfiles.forEach(taskfile => {
-            if (taskfile.tasks.length > 0) {
-                items = items.concat(new QuickPickTaskSeparator(taskfile));
-                taskfile.tasks.forEach(task => {
-                    items = items.concat(new QuickPickTaskItem(taskfile, task));
+            const definitions = taskfile.getTaskDefinitions();
+            if (definitions.length > 0) {
+                items = items.concat(new QuickPickTaskSeparator(taskfile.location));
+                definitions.forEach(definition => {
+                    items = items.concat(new QuickPickTaskItem(definition));
                 });
             }
         });
