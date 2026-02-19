@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.0.1 - 2026-02-19
+
+- Fixed a bug where the minimum version required check was not working and
+  wouldn't report the issue to the user (a767fdb by @pd93).
+- Fixed a bug where the parent namespaces appeared in the task name when
+  displaying tasks in the nested tree view (#240 by @pd93).
+
 ## v1.0.0 - 2026-02-14
 
 The Task extension deserves a bit of love too, so this Valentine's Day we're
