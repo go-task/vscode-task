@@ -88,7 +88,7 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
             for (const task of tasks) {
                 const definition = new TaskDefinition(task, workspace);
                 treeItems = treeItems.concat(new TaskTreeItem(
-                    task.name != "" ? task.name : this._nesting ? task.task.split(namespaceSeparator).pop() ?? task.task : task.task,
+                    this.getTaskName(task),
                     workspace,
                     definition,
                     vscode.TreeItemCollapsibleState.None,
@@ -102,6 +102,20 @@ export class TaskTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
         }
 
         return treeItems;
+    }
+
+    getTaskName(task: Task): string {
+        // If the task has a label that's not the task name, return it
+        if (task.name != task.task) {
+            return task.name;
+        }
+
+        // If nesting is enabled, we remove any namespaces from the task name
+        if (this._nesting) {
+            return task.task.split(namespaceSeparator).pop() ?? task.task;
+        }
+
+        return task.task;
     }
 
     getWorkspaces(): WorkspaceTreeItem[] {
