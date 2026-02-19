@@ -52,7 +52,8 @@ class TaskfileService {
 
             cp.exec(command, { cwd }, (_, stdout: string, stderr: string) => {
                 // If the version is a devel version, ignore all version checks
-                if (stdout.includes("+")) {
+                // The "Task version:" check is for older versions of task that don't output valid semver versions
+                if (!stdout.includes("Task version:") && stdout.includes("+")) {
                     log.info("Using development version of task");
                     this.version = new semver.SemVer("999.0.0");
                     return resolve("ready");
@@ -69,7 +70,8 @@ class TaskfileService {
                 }
 
                 // If the current version is older than the minimum required version, show an error
-                if (this.version && this.version.compare(minimumRequiredVersion) < 0) {
+                // The "Task version:" check is for older versions of task that don't output valid semver versions
+                if (stdout.includes("Task version:") || (this.version && this.version.compare(minimumRequiredVersion) < 0)) {
                     log.error(`Task v${minimumRequiredVersion} is required to run this extension. The current version is v${this.version}`);
                     vscode.window.showErrorMessage(`Task v${minimumRequiredVersion} is required to run this extension. The current version is v${this.version}.`, "Update").then(this.buttonCallback);
                     return resolve("outOfDate");
