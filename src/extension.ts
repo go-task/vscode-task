@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { log } from './utils/log.js';
 import { TaskExtension } from './task.js';
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	log.info("Extension activated");
 
 	// Create a new instance of Tagger
@@ -14,7 +14,7 @@ export function activate(context: vscode.ExtensionContext) {
 	taskExtension.registerListeners(context);
 
 	// Refresh the tasks list
-	taskExtension.refresh();
+	await taskExtension.refresh();
 }
 
 export function deactivate() { }
