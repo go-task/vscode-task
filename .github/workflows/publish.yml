@@ -3,14 +3,17 @@ name: Publish
 on:
   push:
     tags:
-      - '*'
+      - "*"
+
+permissions:
+  contents: read
 
 jobs:
   check-versions:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Check versions match
         run: |
           echo "package.json version: v$(jq -r .version package.json)"
@@ -19,24 +22,26 @@ jobs:
             echo "package.json version does not match git tag"
             exit 1
           fi
+
   publish-vsce:
     runs-on: ubuntu-latest
     needs: check-versions
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Install dependencies
         run: pnpm install
       - name: Publish
         run: pnpm run publish:vsce
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
   publish-ovsx:
     runs-on: ubuntu-latest
     needs: check-versions
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Install dependencies
         run: pnpm install
       - name: Publish
