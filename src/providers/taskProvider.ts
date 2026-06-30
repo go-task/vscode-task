@@ -4,7 +4,8 @@
 
 import * as vscode from 'vscode';
 import { Taskfile } from '../models/taskfile.js';
-import { TaskDefinition } from '../models/taskDefinition.js';
+import { useDedicatedTerminal, buildTaskCommand } from '../utils/taskPresentation.js';
+import { settings } from '../utils/settings.js';
 
 export class TaskProvider implements vscode.TaskProvider<vscode.Task> {
     private _taskfiles: Taskfile[] = [];
@@ -22,16 +23,24 @@ export class TaskProvider implements vscode.TaskProvider<vscode.Task> {
     }
 
 	public resolveTask(_task: vscode.Task): vscode.Task | undefined {
-        const task = _task.definition.task;
-        if (task) {
-            const definition: TaskDefinition = <any>_task.definition;
-            return new vscode.Task(
+        const taskName = _task.definition.task;
+        if (taskName) {
+            const definition = _task.definition;
+            const cliArgs = Array.isArray(definition.args)
+                ? definition.args.filter((arg: unknown): arg is string => typeof arg === 'string' && arg !== "")
+                : [];
+            const workspace = typeof definition.workspace === 'string' ? definition.workspace : undefined;
+            const executionOptions = workspace ? {cwd: workspace} : undefined;
+            return useDedicatedTerminal(new vscode.Task(
                 definition,
                 _task.scope ?? vscode.TaskScope.Workspace,
-                definition.task,
+                taskName,
                 'taskfile',
-                new vscode.ShellExecution(`task ${definition.task}`)
-            );
+                new vscode.ShellExecution(
+                    buildTaskCommand(settings.path, taskName, cliArgs),
+                    executionOptions
+                )
+            ), _task.presentationOptions);
         }
         return undefined;
     }
