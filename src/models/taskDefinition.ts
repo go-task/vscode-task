@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { Location, Task } from './models.js';
 import { settings } from '../utils/settings.js';
+import { useDedicatedTerminal, buildTaskCommand } from '../utils/taskPresentation.js';
 
 export class TaskDefinition implements vscode.TaskDefinition {
     private _task: Task;
@@ -37,17 +38,27 @@ export class TaskDefinition implements vscode.TaskDefinition {
         cliArgs = cliArgs?.filter(x => x !== "") || [];
         const uri = vscode.Uri.file(this.workspace);
         const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri) || vscode.TaskScope.Workspace;
+        const taskLabel = cliArgs.length > 0 ? `${this.name} ${cliArgs.join(' ')}` : this.name;
+        const definition: vscode.TaskDefinition = {
+            type: this.type,
+            task: this.task,
+            workspace: this.workspace,
+            file: this.location.taskfile
+        };
+        if (cliArgs.length > 0) {
+            definition.args = cliArgs;
+        }
         const task = new vscode.Task(
-            this,
+            definition,
             workspaceFolder,
-            this.name,
+            taskLabel,
             this.type,
             new vscode.ShellExecution(
-                `${settings.path} ${this.task}${cliArgs && cliArgs.length > 0 ? " -- " + cliArgs.join(' ') : ''}`,
+                buildTaskCommand(settings.path, this.task, cliArgs),
                 {cwd: this.workspace}
             )
         );
         task.detail = this.description;
-        return task;
+        return useDedicatedTerminal(task);
     }
 }
