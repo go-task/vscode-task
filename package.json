@@ -392,7 +392,7 @@
     "esbuild": "0.27.3",
     "eslint": "10.0.0",
     "mocha": "11.7.5",
-    "ovsx": "0.10.9",
+    "ovsx": "1.1.1",
     "typescript": "5.9.3"
   },
   "dependencies": {
