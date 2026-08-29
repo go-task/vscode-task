@@ -396,7 +396,7 @@
     "typescript": "5.9.3"
   },
   "dependencies": {
-    "@octokit/types": "16.0.0",
+    "@octokit/types": "18.0.0",
     "octokit": "5.0.5",
     "semver": "7.7.4"
   }
